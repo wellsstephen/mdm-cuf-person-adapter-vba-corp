@@ -111,10 +111,10 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 			| PTCPNT_ID				| 2						|	
 	
 	Scenario Outline: Drop record if the Phone Type is not to be synchronized with VET360
-		Given the valid 7 digit Domestic Phone Number exists in Corp
+		Given the valid 7 digit Domestic Phone Number from person phone DIO received from the CUF changelog
 		And existing PHONE_TYPE_NM is "<phoneType>"
 		When converting DIO from Corp to VET360 
-		Then the Adapter will drop record and take no further action 
+		Then the Adapter will drop record and recieve COMPLETED_NOOP
 		Examples:
 		| phoneType |
 		|Other |
@@ -122,132 +122,103 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 		|Pager|
 		
 	Scenario: Dropping a Phone Number record that is not Domestic
-		Given the following person phone record in Corp
+		Given a valid Corp person phone DIO received from the CUF changelog as follows
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID     | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| Nighttime     |9183347966| Today-25 | 		 |  		| 600		|      				   |Today-12 | 	329        | VRCCGORT    |          I         | wuperson       |      	    |  				    |				    |					  |	
 		When converting DIO from Corp to VET360 
 		And CNTRY_NBR is not null or 0
-		Then the Adapter will drop record and take no further action 
+		Then the Adapter will drop record and recieve COMPLETED_NOOP 
+		
+	Scenario: Dropping a Phone Number record that belongs to two veteran identities in Corp
+		Given a valid Corp person phone DIO received from the CUF changelog
+		And PTCPNT_ID matches to two MVI identities
+		When converting DIO from Corp to VET360  
+		Then the Adapter will drop record and recieve COMPLETED_NOOP 
 			
 	##Placeholder scenario##
 	##Scenario: Non-veteran record## 
 		##Given a valid domestic Corp record##
 		##When converting DIO from Corp to Corp##  
 		##And PTCPNT_ID does not correlate with MVI an existing Veteran##
-		##Then the Adapter will drop record and take no further action##
+		##the Adapter will drop record and recieve COMPLETED_NOOP##
 		
 	Scenario: Identifying a 7-digit Domestic Phone Number 
-		Given the following person phone record in Corp
+		Given the following person phone record DIO received from the CUF changelog
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| Daytime		  |1111111	 | Today	| 		 | 703		| 			|      				   |Today-30| 	309		  | VREWESPA    |          U         | wueduprv   |      	   |  				   |				   |					 |	
 		When converting DIO from Corp to VET360 
 		And PHONE_NBR is length 7
 		And AREA_NBR is length 3
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO and recieves a 200 response
-			|internationalInd | countryCode | areaCode | phoneNumber | 
-			| False		      |    	1		|   703    | 1111111     | 
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			|internationalInd | countryCode | areaCode | phoneNumber | phoneType | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		|   703    | 1111111     | Work      |Today-30    | "Corp"       | wueduprv            | VREWESPA      |Today             |
 		
 	Scenario: Identifying a 10-digit Domestic Phone Number with no area code 
-		Given the following person phone record in Corp
+		Given the following person phone record DIO received from the CUF changelog
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID     | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| Celluar       |7038842312| Today-180| 	   |  		| 			|      				   |Today-30 | 	351        | VBAMUSLEONAB|          U         | SHARE  - CEST  |      	   |  				   |				   |					 |	
 		When converting DIO from Corp to VET360 
 		And PHONE_NBR is length 10
 		And AREA_NBR is null
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO and recieves a 200 response
-			|internationalInd | countryCode | areaCode | phoneNumber |
-			| False		      |    	1		|   703    | 8842312     | 
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			|internationalInd | countryCode | areaCode | phoneNumber | phoneType | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		|   703    | 8842312     | Mobile |   Today-180    | "Corp"       | SHARE  - CEST    | VBAMUSLEONAB      |Today-30        |
 		
 	Scenario: Identifying a 10-digit Domestic Phone Number with Matching Area Code 
-		Given the following person phone record in Corp
+		Given the following person phone record DIO received from the CUF changelog
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID     | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| Fax           |7032457656| Today-780| 		 |  703		| 			|      				   |Today-780| 	402        | VREPMCKE    |          I         | wuperson       |      	    |  				    |				    |					  |	
 		When converting DIO from Corp to VET360 
 		And PHONE_NBR is length 10
 		And AREA_NBR matches first 3 characters of PHONE_NBR
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO and recieves a 200 response
-			|internationalInd | countryCode | areaCode | phoneNumber |
-			| False		      |    	1		|   703    | 2457656     |
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			|internationalInd | countryCode | areaCode | phoneNumber |phoneType | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		|   703    | 2457656     | Fax       |Today-780  | "Corp"       | wuperson            | VREPMCKE      |Today-780        |
 		
 	Scenario: Identifying a 10-digit Domestic Phone Number with Non-Matching Area Code 
-		Given the following person phone record in Corp
+		Given the following person phone record DIO received from the CUF changelog
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID     | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| Nighttime     |7037277966| Today-25 | 		 |  610		| 			|      				   |Today-12 | 	329        | VRCCGORT    |          U         | wuperson       |      	    |  				    |				    |					  |	
 		When converting DIO from Corp to VET360 
 		And PHONE_NBR is length 10
 		And AREA_NBR does not match first 3 characters of PHONE_NBR
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO and return "RECEIVED_ERROR_QUEUE"
-			|internationalInd | countryCode | areaCode | phoneNumber | 
-			| False		      |    	1		|   610    | 7037277966   |
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			|internationalInd | countryCode | areaCode | phoneNumber | phoneType |sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		|   610    | 7037277966   | Home     |Today-12    | "Corp"       | wuperson            | VRCCGORT      |Today-25             |
 		
 	Scenario: Identifying a Malformed Domestic Phone Number and Passing to CUF
-		Given the following person phone record in Corp
+		Given the following person phone record DIO received from the CUF changelog
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT   | END_DT   | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID     | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| Daytime       |11		 | Today-1000 | 		 |  		| 			|      				   |Today-12 | 	309        | VRCDLEON    |          U         | wueduprv       |      	    |  				    |				    |					  |	
 		When converting DIO from Corp to VET360 
 		And PHONE_NBR is not length 10 or 7
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO and return "RECEIVED_ERROR_QUEUE"
-			|internationalInd | countryCode | areaCode | phoneNumber | 
-			| False		      |    	1		|          | 11			 |
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			|internationalInd | countryCode | areaCode | phoneNumber | phoneType |sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		|          | 11			 | Work      | Today-12    | "Corp"       | wueduprv            | VRCDLEON      |Today-1000      |
 		
 	Scenario: Identifying a Malformed Domestic Area Number and Passing to CUF
-		Given the following person phone record in Corp
+		Given the following person phone record DIO received from the CUF changelog
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT   | END_DT   | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID     | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| Daytime       |6172299	 | Today-100  | 		 |  8414	| 			|      				   |Today-12 | 	309        | VRCDLEON    |          U         | wueduprv       |      	    |  				    |				    |					  |	
 		When converting DIO from Corp to VET360 
 		And AREA_NBR is not null and not length 3
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO and return "RECEIVED_ERROR_QUEUE"
-			|internationalInd | countryCode | areaCode | phoneNumber | 
-			| False		      |    	1		|   8414   | 6172299     | 
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
-		
+			|internationalInd | countryCode | areaCode | phoneNumber | phoneType |sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		|   8414   | 6172299     | Work      | Today-12  | "Corp"       | wueduprv            | VRCDLEON      |Today-100            |
+
     Scenario: Identifying an Incomplete Domestic Phone Number and Passing to CUF
-		Given the following person phone record in Corp
+		Given the following person phone record DIO received from the CUF changelog
 			| PTCPNT_ID           | PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT   | END_DT   | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID     | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| corpID9			  | Daytime       |6173329	 | Today-28   | 		 |  		| 			|      				   |Today-12 | 	309        | VRCDLEON    |          U         | wueduprv       |      	    |  				    |				    |					  |	
 		When converting DIO from Corp to VET360 
 		And PHONE_NBR length is 7
 		And AREA_NBR is null
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO and return "RECEIVED_ERROR_QUEUE"
-			|internationalInd | countryCode | areaCode | phoneNumber |
-			| False		      |    	1		|          | 6173329	 |
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			|internationalInd | countryCode | areaCode | phoneNumber |phoneType |sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		|          | 6173329	 | Work     | Today-12  | "Corp"       | wueduprv            | VRCDLEON     |Today-28        |
 			
 	Scenario: Remove Non-Numeric Characters from Extension Numbers
-		Given the following veteran domestic phone record exists in Corp
+		Given the following veteran domestic phone record exists DIO received from the CUF changelog
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT   | END_DT   | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID     | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |  
 			| Daytime       |7123899	 | Today-10   | 		 |  703		| 			|      				   |Today-1  | 	309        | VRCDLEON    |          U         | wueduprv       |  ext12    	    |  				    |				    |					  |	
 		When converting DIO from Corp to VET360 
@@ -257,17 +228,12 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 			| Corp		 | False		   | Work      |   	1		 |   703 	| 7123899     | 12     		   |        | Today-1    |          			  |                       |                    | Today-10         	| 	               |                     |          |   wueduprv          |VRCDLEON     |           |
 
 	Scenario Outline: Accepts record if the Phone Type is to be synchronized with VET360
-		Given the valid 10 digit Domestic Phone Number exists in Corp
+		Given the valid 10 digit Domestic Phone Number DIO received from the CUF changelog
 		And existing PHONE_TYPE_NM is "<phoneType>"
 		When converting DIO from Corp to VET360 
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO with "<VET360phoneType>"
-			|internationalInd | countryCode | areaCode | phoneNumber | 
-			| False		      |    	1		 |   703 	| 4343900    | 
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			|internationalInd | countryCode | areaCode | phoneNumber | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		 |   703 	| 4343900    | Today-30    | "Corp"       | wueduprv            | VREWESPA      |Today             |
 		Examples:
 		| phoneType |VET360phoneType|
 		|Daytime    |Work  |
@@ -276,14 +242,9 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 		|Cellular   |Mobile|
 
 	Scenario: Accepts record of unexpected Phone Type will be sent to VET360
-		Given the valid 10 digit Domestic Phone Number exists in Corp
+		Given the valid 10 digit Domestic Phone Number DIO received from the CUF changelog
 		And existing PHONE_TYPE_NM is not Other, International, Pager, Fax, Cellular, Daytime, or Nighttime 
 		When converting DIO from Corp to VET360 
 		Then the Adapter will convert the valid 10 digit Domestic Phone Number to the following VET360 BIO and return "RECEIVED_ERROR_QUEUE"
-			|internationalInd | countryCode | areaCode | phoneNumber |
-			| False		      |    	1		 |   703 	| 4343900    | 
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			|internationalInd | countryCode | areaCode | phoneNumber |sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| False		      |    	1		 |   703 	| 4343900    | Today-30    | "Corp"       | wueduprv            | VREWESPA      |Today             |
