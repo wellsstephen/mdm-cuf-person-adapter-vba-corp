@@ -117,40 +117,37 @@ Feature: Adapt Corp Email BIO to VET360 Address data table
 			| SHARED_ADDRS_IND          | N              	 | 
 			
 	Scenario: Corp Address Record of Type Email has no Email Address
-		Given the following person email record in Corp
-			| PTCPNT_ID           | PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT         | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
-			| corpID1			  | EMAIL		         |Today-10 	 |               | 		 		 |      		   | 		 |      	 |		          | 			         |                       |        |           |      	      |  			  |	            		    |	                         |				            | 		         |          |          |   Today-10|  301        |VHALASFINKED |  I                 | secauser   |  4422           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		N        |			
+		Given the following person email DIO received from the CUF changelog
+			|PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT         | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
+			|EMAIL		          |Today-10 	 |               | 		 		 |      		   | 		 |      	 |		          | 			         |                       |        |           |      	      |  			  |	            		    |	                         |				            | 		         |          |          |   Today-10|  301        |VHALASFINKED |  I                 | secauser   |  4422           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		N        |			
 		When converting DIO from Corp to VET360
 		And EMAIL_ADDRS_TXT is null
-		Then the Adapter will drop record and take no further action
+		Then the Adapter will drop record and recieve COMPLETED_NOOP
+		
+	Scenario: Dropping an Email record that belongs to two veteran identities in Corp
+		Given a Corp person email DIO received from the CUF changelog
+		And PTCPNT_ID matches to two MVI identities
+		When converting DIO from Corp to VET360  
+		Then the Adapter will drop record and recieve COMPLETED_NOOP 
 		
 	Scenario: Corp Address Record of Type Email has Malformed Email Address 
-		Given the following person email record in Corp
-			| PTCPNT_ID           | PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT         | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
-			| corpID2			  | EMAIL		         |Today-120	 |               | 		 		 |      		   | 		 |      	 |		          | 			         |                       |        |           |      	      |  			  |	crapEmai@@c.o.m.edu	    |	                         |				            | 		         |          |          |   Today-1 |  301        |VHALASFINKED |  U                 | secauser   |  4422           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		Y        |			
+		Given the following Corp person email DIO received from the CUF changelog
+			| PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT         | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
+			|  EMAIL               |Today-120	 |               | 		 		 |      		   | 		 |      	 |		          | 			         |                       |        |           |      	      |  			  |	crapEmai@@c.o.m.edu	    |	                         |				            | 		         |          |          |   Today-1 |  301        |VHALASFINKED |  U                 | secauser   |  4422           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		Y        |			
 		When converting DIO from Corp to VET360
 		Then Adapter transforms Corp record to the following Vet360 record  and returns a "RECEIVED_ERROR_QUEUE"
-			| mailAddressText    | 
-			| crapEmai@@c.o.m.edu | 
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			| mailAddressText    | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| crapEmai@@c.o.m.edu |  Today-1  |"Corp"        |   secauser           |  VHALASFINKED|  Today-120       |
 			
 	Scenario: Corp Address Record of Type Email has Valid Email Address 
-		Given the following person email record in Corp
-			| PTCPNT_ID           | PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT         | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID   | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
-			| corpID3			  | EMAIL		         |Today-180	 |               | 		 		 |      		   | 		 |      	 |		          | 			         |                       |        |           |      	      |  			  |	good.Email@yahoo.com    |	                         |				            | 		         |          |          |   Today-21|  325        |VICCPIAZ     |  U                 | SHARE  - CADD|    22           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		N          |			
+		Given the following Corp person email DIO received from the CUF changelog
+			|PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT         | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID   | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
+			| EMAIL		         |Today-180	 |               | 		 		 |      		   | 		 |      	 |		          | 			         |                       |        |           |      	      |  			  |	good.Email@yahoo.com    |	                         |				            | 		         |          |          |   Today-21|  325        |VICCPIAZ     |  U                 | SHARE  - CADD|    22           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		N          |			
 		When converting DIO from Corp to VET360
 		Then Adapter transforms Corp record to the following Vet360 record and recieves a 200 response from CUF 
-			| emailAddressText    | 
-			| good.Email@yahoo.com |
-		And the sourceDate = JRN_DT
-		And the sourceSystem = "Corp"
-		And the sourceSysUser = JRN_USER_ID
-		And orginatingSourceSys = JRN_OBJ_ID
-		And the effectiveStartDate = EFCTV_DT
+			| emailAddressText    | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
+			| good.Email@yahoo.com |  Today-21  |"Corp"        |   secauser           |  VHALASFINKED|  Today-180       |
+
 
 			
 			

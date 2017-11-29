@@ -88,11 +88,30 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 			| sourceDate          | Today            |
 
 			
-	Scenario: Updating existing record in Corp
-		Given the valid Domestic Phone Number exists in Corp
-		When converting DIO from Corp to VET360
-		And the veteran record has an existing active Corp email record 
-		Then the Adapter will update the existing record as follows
+	
+	Scenario: Dropping a Email record that is does not have a PARTICIPANT ID in Corp
+		Given a valid vet360 person phone BIO received from the CUF changelog
+		And MVI does not correlate to a PARTICIPANT ID
+		When converting BIO from VET360 to Corp 
+		Then the Adapter will drop record and recieve COMPLETED_NOOP 
+		
+	Scenario: Dropping a Email record that is does not belong to a veteran
+		Given a valid vet360 person phone BIO received from the CUF changelog
+		And VET_IND is "<N>" in Corp PERSON table
+		When converting BIO from VET360 to Corp 
+		Then the Adapter will drop record and recieve COMPLETED_NOOP 
+		
+	Scenario: Dropping a Email record that is belongs to two veteran identities in Corp
+		Given a valid vet360 person phone BIO received from the CUF changelog
+		And MVI matches to two PTCPNT_ID
+		When converting BIO from VET360 to Corp 
+		Then the Adapter will drop record and recieve COMPLETED_NOOP 
+		
+	Scenario: Updating one existing record in Corp
+		Given the valid Email exists in Corp
+		When converting BIO from VET360 to Corp
+		And the veteran record has an existing active Corp record with PTCPNT_ADDRS_TYPE_NM value of EMAIL
+		Then the system will populate the END_DT field with the effectiveStartDate value 
 			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID |  END_DT |
 			| EMAIL         	    | megadeath@oldies.com  | Today    |  	00001	 | Today |
 		And the JRN_STATUS_TYPE_CD = "U"	
@@ -100,9 +119,9 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 		And the JRN_EXTNL_APPLCN_NM = SourceSystem
 	    And the JRN_DT = sourceDate
 		And the JRN_OBJ_ID = orginatingSourceSys
-		And commits the following new email record and recieves a 200 response
+		And commits the following new record in PTCPNT_ADDRS with a PTCPNT_ADDRS_TYPE_NM value of EMAIL and recieves a 200 response
 			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID | 
-			| EMAIL         	    | megadeath2@oldies.com | Today    |  	00001	 | 
+			| EMAIL         	    |megadeath2@oldies.com | Today    |  	00001	 | 
 		And the JRN_STATUS_TYPE_CD = "U"	
 		And the JRN_USER_ID = sourceSysUser
 		And the JRN_EXTNL_APPLCN_NM = SourceSystem
@@ -115,7 +134,7 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 		And the veteran record does not have an existing active Corp email record 
 		Then the Adapter will insert the following record and recieve a 200 response
 			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID |  
-			| EMAIL         	    | everlast@oldies.com  | Today    |  	00001	| 
+			| EMAIL         	    | everlast@oldies.com  | Today    |  	00001	 | 
 		And the JRN_STATUS_TYPE_CD = "I"	
 		And the JRN_USER_ID = sourceSysUser
 		And the JRN_EXTNL_APPLCN_NM = SourceSystem
