@@ -1,4 +1,4 @@
-##Drafted by Aramis Calderon (email: aramis.calderon@halfaker.com/ phone: 7608055923)##
+##Drafted by Aramis Calderon (email: aramis.calderon@halfaker.com/ phone: 7608055923)
 Feature: Adapt Corp Email BIO to VET360 Address data table
 		As Department of Veterans Affairs Enterprise, I want to convert Email Address records in VBA Corp to VET360 Email records schema. 
 
@@ -9,7 +9,8 @@ Feature: Adapt Corp Email BIO to VET360 Address data table
 	- Corp-CDC-Staging-Table filter will only provide an Email specific DB view/table.
 	- Corp-CDC-Staging-Table Email specific DB view/table will only expose mapped fields that are required for changes.
 	- Corp-CDC-Staging-Table will ONLY stage records where PTCPNT_ADDRS_TYPE_NM equals "EMAIL".
-    - Adapter will not check if a record is active and belongs to a living veteran without a fiduciaury.	
+    - Adapter will not check if a record is active and belongs to a living veteran without a fiduciary.	
+    - Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI. 
 	
     Field Mappings:
 	- Records from Corp are PTCPNT_ADDRS records with a PTCPNT_ADDRS_TYPE_NM equal to "EMAIL"

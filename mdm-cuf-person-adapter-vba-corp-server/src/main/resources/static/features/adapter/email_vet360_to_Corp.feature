@@ -1,15 +1,20 @@
-##Drafted by Aramis Calderon (email: aramis.calderon@halfaker.com/ phone: 7608055923)##
+##Drafted by Aramis Calderon (email: aramis.calderon@halfaker.com/ phone: 7608055923)
 Feature: Adapt VET360 Email BIO to Corp Address data table
 		As Department of Veterans Affairs Enterprise, I want to convert Email Address records in VET360 to VBA Corp Email records schema. 
+
+	Definition of Terms
+    - Matching: Returned PTCPNT_ID from MVI call equals the PTCPNT_ID of the destination table (PTCPNT_PHONE or PTCPNT_ADDRS)
+    - Active: Current date falling between the EFCTV_DT and END_DT (or END_DT is null)
+    - Delete: END_DT of Corp record will be equal to VET360 effectiveEndDate
 
 	Constraints:
 	- Email addresses in the VBA Corp are stored in physical address Table (PTCPNT_ADDRS). 
 	
 	Assumptions:
-	- Record coming from VET360 is a Veteran.
-	- Veteran records wih 2 PARTICIPANT_IDs will be sent to the Error Queue and never populated in the changelog.
+	- Veteran records with 2 PARTICIPANT_IDs will be sent to the Error Queue and never populated in the changelog.
 	- Any change pushed to Corp by VET360 is already validated as an Alive Veteran.
 	- Adapter will be able to query existing records in Corp
+	- If no Corp correlated ID/participant ID is present in the CUF change log queue message then we will drop the change and post back to the CUF a COMPLETED_NOOP
 	- Contact information change pushed out to Corp that matches records will be End-Dated even if the 
 		core fields (e.g. area number, phone number, extension) are identical thus updating the provenance fields (i.e. the mapped JRN_XX columns)
 	
@@ -94,33 +99,27 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 			| sourceSysUser       | Jeff             |
 			| sourceDate          | Today            |
 
-			
-	#1
-	Scenario: Dropping an Email record that does not have a PARTICIPANT_ID in MVI
-		Given a valid Vet360 person Email BIO received from the CUF changelog
+
+	Scenario: Dropping an Email record that does not have a correlated PARTICIPANT_ID in MVI
+		Given a valid VET360 person Email BIO received from the CUF changelog
 		When the changelog BIO PARTICIPANT_ID is NULL
 		Then the Adapter will drop record and sends "COMPLETED_NOOP" to CUF#Pending Michelle
 
-	Scenario: Dropping an Email record that does not have a PERSON record in Corp matching the corralated PARTICIPANT_ID 
-		Given a valid Vet360 person Email BIO received from the CUF changelog
-		When the Corp PERSON record does not exist for the given changelog PARTICIPANT_ID 
-		Then the Adapter will drop record and sends "COMPLETED_NOOP" to CUF		
-		
 	Scenario: Updating one existing records in Corp
-		Given the following Vet360 person Email BIO received from the CUF changelog
+		Given the following VET360 person Email BIO received from the CUF changelog
 			|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|
 			| VETSGOV     | megadeath2@oldies.com  | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | Jeff Watermelon |   1   |
-        When the changelog BIO has PTCPNT_ID equal to one Corp record in PTCPNT_ADDRS table
-		And the effectiveStartDate is greater than or equal to EFCTV_DT or END_DT is NULL
-		Then the Adapter will populate the following Email record with the END_DT equal to the effectiveStartDate value
+        When the changelog BIO matches to a record in Corp Email table in the database 
+		And the record is active
+		Then the Adapter will delete the following Email record 
 			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT     | EFCTV_DT | END_DT       | JRN_LCTN_ID         | 
-			| EMAIL         	    |megadeath1@oldies.com | Today-90 | Today        |	<CorpProvided>	 | 
+			| EMAIL         	    |megadeath1@oldies.com | Today-90 | Today      |	<CorpProvided>	 | 
 		And the JRN_STATUS_TYPE_CD = "U"	
 		And the JRN_USER_ID = sourceSysUser
 		And the JRN_EXTNL_APPLCN_NM = SourceSystem
 	    And the JRN_DT = sourceDate
 		And the JRN_OBJ_ID = orginatingSourceSys
-		And commits the following new record in PTCPNT_ADDRS with a PTCPNT_ADDRS_TYPE_NM value of EMAIL and sends "COMPLETED_SUCCESS" response to CUF
+		And inserts the following new record and sends "COMPLETED_SUCCESS" response to CUF
 			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID         | 
 			| EMAIL         	    |megadeath2@oldies.com | Today    |  	<CorpProvided>	 | 
 		And the JRN_STATUS_TYPE_CD = "I"	
@@ -130,12 +129,12 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 		And the JRN_OBJ_ID = orginatingSourceSys		
 	
 	Scenario: Updating multiple existing records in Corp
-		Given the following Vet360 person Email BIO received from the CUF changelog
+		Given the following VET360 person Email BIO received from the CUF changelog
         	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|
 			| VETSGOV     | Pantera3@oldies.com    | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | Jeff Apleegate	 |   1   |
-		When the changelog BIO has PTCPNT_ID equal to two Corp records in PTCPNT_ADDRS table
-		And the effectiveStartDate is greater than or equal to EFCTV_DT or END_DT is NULL
-		Then the Adapter will populate the following Email records with the END_DT equal to the effectiveStartDate value#show matching Corp records end-date
+		When the changelog BIO matches to two records in Corp Email table in the database 
+		And the records are active
+		Then the Adapter will delete the following Email record
 			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT     | EFCTV_DT | END_DT       | JRN_LCTN_ID         | 
 			| EMAIL         	    |Pantera1@oldies.com | Today-90 | Today        |	<CorpProvided>	 | 
 			| EMAIL         	    |Pantera2@oldies.com | Today-30 | Today        |	<CorpProvided>	 | 
@@ -144,7 +143,7 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 		And the JRN_EXTNL_APPLCN_NM = SourceSystem
 	    And the JRN_DT = sourceDate
 		And the JRN_OBJ_ID = orginatingSourceSys
-		And commits the following new record in PTCPNT_ADDRS with a PTCPNT_ADDRS_TYPE_NM value of EMAIL and sends "COMPLETED_SUCCESS" response to CUF
+		And inserts the following new record and sends "COMPLETED_SUCCESS" response to CUF
 			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID         | 
 			| EMAIL         	    |Pantera3@oldies.com | Today    |  	<CorpProvided>	 | 
 		And the JRN_STATUS_TYPE_CD = "I"	
@@ -153,12 +152,12 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 	    And the JRN_DT = sourceDate
 		And the JRN_OBJ_ID = orginatingSourceSys		
 		
-	Scenario: Insert new Vet360 email record into Corp
-		Given the following Vet360 person Email BIO received from the CUF changelog
+	Scenario: Insert new VET360 email record into Corp
+		Given the following VET360 person Email BIO received from the CUF changelog
         	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|
 			| VETSGOV     | everlast@oldies.com    | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | James Hetfield  |   1   |
-		When the changelog BIO has PTCPNT_ID not equal Corp record in PTCPNT_ADDRS table
-		Then the Adapter will insert the following record and sends "COMPLETED_SUCCESS" response to CUF
+		When the changelog BIO does not match to a record in Corp Email table in the database 
+		Then the Adapter inserts the following record and sends "COMPLETED_SUCCESS" response to CUF
 			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID         |  
 			| EMAIL         	    | everlast@oldies.com  | Today    |  	<CorpProvided>	 | 
 		And the JRN_STATUS_TYPE_CD = "I"	
@@ -168,14 +167,13 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 	    And the JRN_OBJ_ID = orginatingSourceSys
 	
 	Scenario: Veteran only has a work email on record and retires
-		Given the following Vet360 person Email BIO received from the CUF changelog
+		Given the following VET360 person Email BIO received from the CUF changelog
         	|sourceSystem | emailAddressText       | effectiveStartDate | effectiveEndDate|sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|
 			| VETSGOV     | Fade2Black@oldies.com  | Today-30           | Today           | Today       | Today            | NO_KNOWN_PROBLEM | False        | Bob Sieger      |   2   |
-		When the changelog BIO has PTCPNT_ID equal to a Corp record in PTCPNT_ADDRS table
-		And PTCPNT_ADDRS_TYPE_NM equals "<EMAIL>"
-		And the changelog BIO effectiveStartDate is greater than or equal to EFCTV_DT or END_DT is NULL
-		Then the Adapter will populate the END_DT field with the effectiveEndDate and sends "COMPLETED_SUCCESS" response to CUF
-			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT         | EFCTV_DT |  END_DT    |   JRN_LCTN_ID         |  
+        When the changelog BIO matches to a record in Corp Email table in the database 
+		And the record is active
+		Then the Adapter will delete the record as follows and sends "COMPLETED_SUCCESS" response to CUF
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT         | EFCTV_DT |  END_DT    |   JRN_LCTN_ID     |  
 			| EMAIL         	    | Fade2Black@oldies.com  | Today-30 | Today      | <CorpProvided>	 | 
 		And the JRN_STATUS_TYPE_CD = "U"	
 		And the JRN_USER_ID = sourceSysUser
