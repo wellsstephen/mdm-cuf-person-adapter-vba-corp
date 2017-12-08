@@ -30,9 +30,7 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
 	- VET360 effectiveStartDate populates Corp EFCTV_DT field.
 	- VET360 effectiveEndDate populates Corp END_DT field.
 	- VET360 sourceDate populates Corp JRN_DT field.
-	- VET360 orginatingSourceSys populates Corp JRN_OBJ_ID field.
-	- VET360 sourceSystem populates Corp JRN_EXTNL_APPLCN_NM field.
-    - VET360 sourceSysUser populates Corp JRN_USER_ID field.
+	- VET360 sourceSystem, sourceSysUser, and  orginatingSourceSys populates Corp JRN_EXTNL_KEY_TXT field.
 	- Corp JRN_LCTN_ID value will be derived from service.
 	- Corp JRN_STATUS_TYPE_CD value will be derived from type of transaction.
 	
