@@ -4,7 +4,7 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 		phone records schema.
 
     Assumptions:
-	- Corp Person table will be the authoritative source of Veteran identity.
+	- Corp Person table will be the authoritative source of Veteran status.
 	- International numbers will not be in scope for IOC.
 	- Phone type of Other, Pager, & International will not be synced with VET360.
 	
@@ -13,7 +13,7 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 	- Corp-CDC-Staging-Table Phone specific DB view/table will only expose mapped fields that are required for changes.
 	- Corp-CDC-Staging-Table will ONLY stage records where PHONE_TYPE_NM equals "Daytime", "Nighttime", "Fax", or "Cellular".
 	- Adapter will not check if a record is active and belongs to a living veteran without a fiduciary.
-	- Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI. 
+	- Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI.#Follow up meeting with BGS/MVI/CORP 
 	
 	Field Mappings:
 	- VET360 record is created with effectiveStartDate matching Corp EFCTV_DT.
@@ -142,7 +142,8 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 		Then the Adapter will convert the Domestic Phone Number to the following VET360 BIO and send through Maintenance-Endpoint which will return a "RECEIVED" response to Corp-CDC-Staging-Table
 			| internationalInd | countryCode | areaCode | phoneNumber | phoneType | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate |
 			| False            | 1           | 703      | 1111111     | Work      | Today-30   | "Corp"       | wueduprv            | VREWESPA      | Today              |
-		
+	
+	#Check areaCode validation	
 	Scenario: Identifying a 10-digit Domestic Phone Number with no area code
 		Given the following person phone record DIO received from the Corp-CDC-Staging-Table
 			| PHONE_TYPE_NM | PHONE_NBR  | EFCTV_DT  | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT   | JRN_LCTN_ID | JRN_USER_ID  | JRN_STATUS_TYPE_CD | JRN_OBJ_ID    | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |
@@ -173,15 +174,22 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 			| internationalInd | countryCode | areaCode | phoneNumber | phoneType | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate |
 			| False            | 1           | 610      | 7037277966  | Home      | Today-12   | "Corp"       | wuperson            | VRCCGORT      | Today-25           |
 		
-	Scenario: Updating a Phone record in VET360
+	Scenario Outline: Updating a Phone record in VET360
 		Given the following person phone record DIO received from the Corp-CDC-Staging-Table
 			| PHONE_TYPE_NM | PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |
-			| Daytime       | 8675309   | Today    |        | 703      |           |                      | Today  | 309         | VREWESPA    | I                  | wueduprv   |            |                   |                   |                     |
+			| "<phoneType>" | 8675309   | Today    |        | 703      |           |                      | Today  | 309         | VREWESPA    | I                  | wueduprv   |            |                   |                   |                     |
         When Phone record DIO PTCPNT_ID received from the Corp-CDC-Staging-Table correlates to VET360Id
-		Then the Adapter will convert the Domestic Phone Number to the following VET360 BIO, does not populate effectiveStartDate with EFCTV_DT, and send through Maintenance-Endpoint which will return "RECEIVED_ERROR_QUEUE" to Corp-CDC-Staging-Table
-			| internationalInd | countryCode | areaCode | phoneNumber | phoneType | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate |
-			| False            | 1           | 703      | 8675309     | Work      | Today      | "Corp"       | wueduprv            | VREWESPA      | Today-30           |
-		
+        And "<phoneType>" matches "<VET360phoneType>"
+		Then the Adapter will convert the Domestic Phone Number to the following VET360 BIO, does not populate effectiveStartDate with EFCTV_DT, and send through Maintenance-Endpoint which will return "RECEIVED" to Corp-CDC-Staging-Table
+			| internationalInd | countryCode | areaCode | phoneNumber | phoneType                | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate |
+			| False            | 1           | 703      | 8675309     | "<VET360phoneType>"      | Today      | "Corp"       | wueduprv            | VREWESPA      | Today-30           |
+		Examples:
+		| phoneType | VET360phoneType |
+		| Daytime   | Work            |
+		| Nighttime | Home            |
+		| Fax       | Fax             |
+		| Cellular  | Mobile          |
+
 	Scenario: Identifying a Malformed Domestic Phone Number and Passing to CUF
 		Given the following person phone record DIO received from the Corp-CDC-Staging-Table
 			| PHONE_TYPE_NM | PHONE_NBR | EFCTV_DT   | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT   | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |
@@ -221,10 +229,12 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 
 	Scenario Outline: Accepts record if the Phone Type is to be synchronized with VET360
 		Given the valid 10 digit Domestic Phone Number DIO received from the Corp-CDC-Staging-Table
+			| PHONE_TYPE_NM | PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |
+			| "<phoneType>" | 4343090   | Today    |        | 703      |           |                      | Today-30| 309         | VREWESPA    | I                  | wueduprv   |            |                   |                   |                     |
 		When existing PHONE_TYPE_NM is "<phoneType>"
-		Then the Adapter will convert the Domestic Phone Number to the following VET360 BIO with "<VET360phoneType>" and send to Maintenance-Endpoint which will return "RECEIVED" respone to Corp-CDC-Staging-Table
+		Then the Adapter will convert the Domestic Phone Number to the following VET360 BIO with "<VET360phoneType>" and send to Maintenance-Endpoint which will return "RECEIVED" response to Corp-CDC-Staging-Table
 			| internationalInd | countryCode | areaCode | phoneNumber | phoneType           | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate |
-			| False            | 1           | 703      | 4343900     | "<VET360phoneType>" | Today-30   | "Corp"       | wueduprv            | VREWESPA      | Today              |
+			| False            | 1           | 703      | 4343090     | "<VET360phoneType>" | Today-30   | "Corp"       | wueduprv            | VREWESPA      | Today              |
 		Examples:
 		| phoneType | VET360phoneType |
 		| Daytime   | Work            |
@@ -232,23 +242,23 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 		| Fax       | Fax             |
 		| Cellular  | Mobile          |
 
-	Scenario: Accepts record of unexpected Phone Type will be sent to VET360
-		Given the following Domestic Phone Number DIO received from the Corp-CDC-Staging-Table
-			| PHONE_TYPE_NM        | PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |
-			| SubspaceCommunicator | 7123899   | Today-10 | Today  | 703      |           |                      | Today-1 | 309         | VRCDLEON    | U                  | wueduprv   | ext12      |                   |                   |                     |
-
-		When existing PHONE_TYPE_NM is not "<Other>", "<International>", "<Pager>", "<Fax>", "<Cellular>", "<Daytime>", or "<Nighttime>"
-		Then the Adapter will convert the Domestic Phone Number to the following VET360 BIO and send to Maintenance-Endpoint which will return "RECEIVED_ERROR_QUEUE" to Corp-CDC-Staging-Table
-			| internationalInd | countryCode | areaCode | phoneNumber | phoneType            | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate |
-			| False            | 1           | 703      | 4343900     | SubspaceCommunicator | Today      | "Corp"       | wueduprv            | VREWESPA      | Today              |
-
-	Scenario: End-date a Phone record with a different phone number value in VET360
-		Given the following person Email record DIO received from the Corp-CDC-Staging-Table
+	Scenario: End-date a Phone record 
+		Given the following person Phone record DIO received from the Corp-CDC-Staging-Table
 			| PHONE_TYPE_NM | PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |
 			| Daytime       | 7123899   | Today-10 | Today  | 703      |           |                      | Today-1 | 309         | VRCDLEON    | U                  | wueduprv   | ext12      |                   |                   |                     |
 		When Phone record DIO PTCPNT_ID received from the Corp-CDC-Staging-Table correlates to VET360Id
+		And the END_DT is not NULL
+		Then the Adapter will convert the Phone to the following VET360 BIO and send through Maintenance-Endpoint which will return "RECEIVED" to Corp-CDC-Staging-Table
+			| internationalInd | countryCode | areaCode |phoneType| phoneNumber | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate | effectiveEndDate |
+			| False            | 1           | 703      | Work    | 7123844     | Today      | "Corp"       | wueduprv            | VREWESPA      | Today-30           | Today            |
+
+	Scenario: End-date a Phone record with a different phone number value in VET360
+		Given the following person Phone record DIO received from the Corp-CDC-Staging-Table
+			| PHONE_TYPE_NM | PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | CNTRY_NBR | FRGN_PHONE_RFRNC_TXT | JRN_DT  | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM |
+			| Daytime       | 7123899   | Today-10 | Today  | 703      |           |                      | Today-1 | 309         | VRCDLEON    | U                  | wueduprv   | ext12      |                   |                   |                     |
+		When Phone record DIO PTCPNT_ID received from the Corp-CDC-Staging-Table correlates to VET360Id
+		And the END_DT is not NULL
 		And the phoneNumber does not equal to PHONE_NBR
 		Then the Adapter will convert the Phone to the following VET360 BIO and send through Maintenance-Endpoint which will return "RECEIVED_ERROR_QUEUE" to Corp-CDC-Staging-Table
-			| internationalInd | countryCode | areaCode | phoneNumber | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate | effectiveEndDate |
-			| False            | 1           | 703      | 7123844     | Today      | "Corp"       | wueduprv            | VREWESPA      | Today-30           | Today            |
-			
+			| internationalInd | countryCode | areaCode |phoneType| phoneNumber | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser | effectiveStartDate | effectiveEndDate |
+			| False            | 1           | 703      | Work    | 7123844     | Today      | "Corp"       | wueduprv            | VREWESPA      | Today-30           | Today            |

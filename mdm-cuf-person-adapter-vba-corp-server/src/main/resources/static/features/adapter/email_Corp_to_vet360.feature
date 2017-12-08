@@ -10,7 +10,7 @@ Feature: Adapt Corp Email BIO to VET360 Address data table
 	- Corp-CDC-Staging-Table Email specific DB view/table will only expose mapped fields that are required for changes.
 	- Corp-CDC-Staging-Table will ONLY stage records where PTCPNT_ADDRS_TYPE_NM equals "EMAIL".
     - Adapter will not check if a record is active and belongs to a living veteran without a fiduciary.	
-    - Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI. 
+    - Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI.#Follow up meeting with BGS/MVI/CORP  
 	
     Field Mappings:
 	- Records from Corp are PTCPNT_ADDRS records with a PTCPNT_ADDRS_TYPE_NM equal to "EMAIL"
@@ -125,7 +125,7 @@ Feature: Adapt Corp Email BIO to VET360 Address data table
 			|EMAIL		          |Today-10   |               | 		 	  |      		    | 		  |      	  |		           | 			          |                       |        |           |      	       |  			   |	            		 |	                          |				             | 		         |          |          |   Today-10|  301        |VHALASFINKED |  I                 | secauser   |  4422           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		N        |			
 		When EMAIL_ADDRS_TXT is null
 		Then the Adapter will drop record and send "COMPLETED_NOOP" to Corp-CDC-Staging-Table
-		
+	
 	Scenario: Corp Address Record of Type Email has malformed Email Address 
 		Given the following Corp person email DIO received from the Corp-CDC-Staging-Table
 			| PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT         | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
@@ -149,8 +149,7 @@ Feature: Adapt Corp Email BIO to VET360 Address data table
 			|PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT         | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID   | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
 			| EMAIL		         |Today       |               | 		 	  |      		    | 		  |      	  |		           | 			          |                       |        |           |      	       |  		       |	new.Email@yahoo.com    |	                         |				            | 		         |          |          |   Today-21|  325        |VICCPIAZ     |  I                 | SHARE  - CADD|    22           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		N          |			
 		When Email record DIO PTCPNT_ID received from the Corp-CDC-Staging-Table correlates to VET360Id 
-		And the emailAddressText is equal to EMAIL_ADDRS_TXT
-		Then the Adapter will convert the Email to the following VET360 BIO, does not populate effectiveStartDate with EFCTV_DT, and send through Maintenance-Endpoint which will return "RECEIVED_ERROR_QUEUE" to Corp-CDC-Staging-Table
+		Then the Adapter will convert the Email to the following VET360 BIO, does not populate effectiveStartDate with EFCTV_DT, and send through Maintenance-Endpoint which will return "RECEIVED" to Corp-CDC-Staging-Table
 			| emailAddressText    | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|
 			| new.Email@yahoo.com |  Today     | "Corp"       |   secauser          |  VHALASFINKED |  Today-180       |
 		
@@ -160,10 +159,10 @@ Feature: Adapt Corp Email BIO to VET360 Address data table
 			| EMAIL		          |Today-30   |               | 		 	  |      		    | 		  |      	  |		           | 			          |                       |Today   |           |      	      |  		       | doesn't_matter.Email@yahoo.com |	                         |				            | 		         |          |          |   Today-21|  325        |VICCPIAZ     |  I                 | SHARE  - CADD|    22           |                       |                   |                   |                     |           |                |                |               |                      |                      |                        |  		N          |			
 		When Email record DIO PTCPNT_ID received from the Corp-CDC-Staging-Table correlates to VET360Id 
 		And has an END_DT not NULL
-		Then the Adapter will convert the Email to the following VET360 BIO and send through Maintenance-Endpoint which will return "RECEIVED_ERROR_QUEUE" to Corp-CDC-Staging-Table
+		Then the Adapter will convert the Email to the following VET360 BIO and send through Maintenance-Endpoint which will return "RECEIVED" to Corp-CDC-Staging-Table
 			| emailAddressText    			 | sourceDate | sourceSystem | orginatingSourceSys | sourceSysUser |effectiveStartDate|effectiveEndDate|
 			| doesn't_matter.Email@yahoo.com |  Today     |"Corp"        |   secauser          |  VHALASFINKED |  Today-180       | Today          |
-			
+
 	Scenario: End-date an Email record with a different Email value in VET360 
 		Given the following person Email record DIO received from the Corp-CDC-Staging-Table
 			|PTCPNT_ADDRS_TYPE_NM |EFCTV_DT   | ADDRS_ONE_TXT | ADDRS_TWO_TXT | ADDRS_THREE_TXT | CITY_NM | COUNTY_NM | ZIP_PREFIX_NBR | ZIP_FIRST_SUFFIX_NBR | ZIP_SECOND_SUFFIX_NBR | END_DT | POSTAL_CD | CNTRY_TYPE_NM | BAD_ADDRS_IND | EMAIL_ADDRS_TXT                | MLTY_POSTAL_TYPE_CD        | MLTY_POST_OFFICE_TYPE_CD | FRGN_POSTAL_CD | PRVNC_NM | TRTRY_NM | JRN_DT    | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID   | PTCPNT_ADDRS_ID | GROUP1_VERIFD_TYPE_CD | JRN_EXTNL_USER_ID | JRN_EXTNL_KEY_TXT | JRN_EXTNL_APPLCN_NM | CREATE_DT | CREATE_LCTN_ID | CREATE_USER_ID | CREATE_OBJ_ID | CREATE_EXTNL_USER_ID | CREATE_EXTNL_KEY_TXT | CREATE_EXTNL_APPLCN_NM | SHARED_ADDRS_IND | 
