@@ -14,6 +14,11 @@
 	<name>mdm-cuf-person-adapter-vba-corp-server</name>
 	<description>mdm-cuf-person-adapter-vba-corp Server War</description>
 
+	<properties>
+		<dockerfile.maven.plugin.version>1.3.3</dockerfile.maven.plugin.version>
+		<docker.image.registry>vaausappv36901.aac.va.gov:7003</docker.image.registry>
+	</properties>
+	
 	<dependencies>
 		<!-- mdm-cuf-core dependencies -->
 		<dependency>
@@ -81,4 +86,51 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<profiles>
+		<profile>
+			<activation>
+				<property>
+					<name>buildDocker</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>${dockerfile.maven.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>build</id>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>tag</id>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+						<configuration>
+							<repository>${docker.image.registry}/vet360/${project.artifactId}</repository>
+							<tag>${project.version}</tag>
+						</configuration>
+					</execution>
+					<execution>
+						<id>latest</id>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+						<configuration>
+							<repository>${docker.image.registry}/vet360/${project.artifactId}</repository>
+							<tag>latest</tag>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
