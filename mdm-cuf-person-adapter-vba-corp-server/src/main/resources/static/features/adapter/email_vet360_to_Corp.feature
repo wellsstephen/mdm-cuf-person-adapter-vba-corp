@@ -24,7 +24,11 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 	- VET360 emailAddressText populates Corp EMAIL_ADDRS_TXT field.
 	- VET360 effectiveStartDate populates Corp EFCTV_DT field.
 	- VET360 sourceDate populates Corp JRN_DT field.
-	- VET360 sourceSystem, sourceSysUser, and  orginatingSourceSys populates Corp JRN_EXTNL_KEY_TXT field.
+	- JRN_EXTNL_APPLCN_NM will have "vet360adapter" in the field.
+	- VET360 sourceSysUser populates JRN_EXTNL_USER_ID.
+	- JRN_OBJ_ID will have application name + action (e.g. “VET360PHONE”, “VET360AddressUp”, “VET360CONTACTUPDATE”). 
+	- JRN_USER_ID will have "VET360SYSACCT" in the field.
+    - VET360 sourceSystem, orginatingSourceSys, and sourceSysUser populates comma separated Corp JRN_EXTNL_KEY_TXT field; in that order.
 	- Corp JRN_LCTN_ID value will be derived from service.
 	- Corp JRN_STATUS_TYPE_CD value will be derived from type of transaction (logical delete/update or new record).
 		
@@ -105,78 +109,130 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 
 	Scenario: Updating one existing records in Corp
 		Given the following VET360 person Email BIO received from the CUF changelog
-			|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|
-			| VETSGOV     | megadeath2@oldies.com  | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | Jeff Watermelon |   1   |
+			|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|orginatingSourceSys|
+			| VETS360     | megadeath2@oldies.com  | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | Jeff Watermelon |   1   | Vets.gov			 |
         When the changelog BIO matches to a record in Corp Email table in the database 
 		And the record is active
 		Then the Adapter will delete the following Email record 
-			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT     | EFCTV_DT | END_DT       | JRN_LCTN_ID         | 
-			| EMAIL         	    |megadeath1@oldies.com | Today-90 | Today      |	<CorpProvided>	 | 
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT     | EFCTV_DT   | END_DT | JRN_EXTNL_KEY_TXT   | JRN_EXTNL_USER_ID |
+			| EMAIL         	    |megadeath1@oldies.com | Today-90 | Today  |ETS360,Vets.gov  	 | Jeff Watermelon   |
 		And the JRN_STATUS_TYPE_CD = "U"	
-		And the JRN_USER_ID = sourceSysUser
-		And the JRN_EXTNL_APPLCN_NM = SourceSystem
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
 	    And the JRN_DT = sourceDate
-		And the JRN_OBJ_ID = orginatingSourceSys
+		And the JRN_OBJ_ID = "VET360AddressUp"
 		And inserts the following new record and sends "COMPLETED_SUCCESS" response to CUF
-			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID         | 
-			| EMAIL         	    |megadeath2@oldies.com | Today    |  	<CorpProvided>	 | 
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_EXTNL_KEY_TXT| JRN_EXTNL_USER_ID |
+			| EMAIL         	    |megadeath2@oldies.com | Today    |  VETS360,Vets.gov | Jeff Watermelon   |
 		And the JRN_STATUS_TYPE_CD = "I"	
-		And the JRN_USER_ID = sourceSysUser
-		And the JRN_EXTNL_APPLCN_NM = SourceSystem
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
 	    And the JRN_DT = sourceDate
-		And the JRN_OBJ_ID = orginatingSourceSys		
+		And the JRN_OBJ_ID = "VET360AddressUp"	
 	
 	Scenario: Updating multiple existing records in Corp
 		Given the following VET360 person Email BIO received from the CUF changelog
-        	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|
-			| VETSGOV     | Pantera3@oldies.com    | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | Jeff Apleegate	 |   1   |
+        	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|orginatingSourceSys|
+			| VETS360     | Pantera3@oldies.com    | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | Jeff Apleegate	 |   2   |Vets.gov           |
 		When the changelog BIO matches to two records in Corp Email table in the database 
 		And the records are active
 		Then the Adapter will delete the following Email record
-			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT     | EFCTV_DT | END_DT       | JRN_LCTN_ID         | 
-			| EMAIL         	    |Pantera1@oldies.com | Today-90 | Today        |	<CorpProvided>	 | 
-			| EMAIL         	    |Pantera2@oldies.com | Today-30 | Today        |	<CorpProvided>	 | 
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT     | EFCTV_DT | END_DT |  JRN_EXTNL_KEY_TXT| JRN_EXTNL_USER_ID |
+			| EMAIL         	    |Pantera1@oldies.com | Today-90 | Today  |	VETS360,Vets.gov | Jeff Apleegate    |
+			| EMAIL         	    |Pantera2@oldies.com | Today-30 | Today  |	VETS360,Vets.gov | Jeff Apleegate    |
 		And the JRN_STATUS_TYPE_CD = "U"	
-		And the JRN_USER_ID = sourceSysUser
-		And the JRN_EXTNL_APPLCN_NM = SourceSystem
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
 	    And the JRN_DT = sourceDate
-		And the JRN_OBJ_ID = orginatingSourceSys
+		And the JRN_OBJ_ID = "VET360AddressUp"	
 		And inserts the following new record and sends "COMPLETED_SUCCESS" response to CUF
-			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID         | 
-			| EMAIL         	    |Pantera3@oldies.com | Today    |  	<CorpProvided>	 | 
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_EXTNL_KEY_TXT | JRN_EXTNL_USER_ID |
+			| EMAIL         	    |Pantera3@oldies.com | Today    |  	VETS360,Vets.gov,  | Jeff Apleegate    |
 		And the JRN_STATUS_TYPE_CD = "I"	
-		And the JRN_USER_ID = sourceSysUser
-		And the JRN_EXTNL_APPLCN_NM = SourceSystem
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
 	    And the JRN_DT = sourceDate
-		And the JRN_OBJ_ID = orginatingSourceSys		
+		And the JRN_OBJ_ID = "VET360AddressUp"		
 		
 	Scenario: Insert new VET360 email record into Corp
 		Given the following VET360 person Email BIO received from the CUF changelog
-        	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|
-			| VETSGOV     | everlast@oldies.com    | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | James Hetfield  |   1   |
+        	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|orginatingSourceSys|
+			| VETS360     | everlast@oldies.com    | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | James Hetfield  |   3   |Vets.gov           |
 		When the changelog BIO does not match to a record in Corp Email table in the database 
 		Then the Adapter inserts the following record and sends "COMPLETED_SUCCESS" response to CUF
-			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |  JRN_LCTN_ID         |  
-			| EMAIL         	    | everlast@oldies.com  | Today    |  	<CorpProvided>	 | 
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |   JRN_EXTNL_KEY_TXT | JRN_EXTNL_USER_ID |
+			| EMAIL         	    | everlast@oldies.com  | Today    |  VETS360,Vets.gov   | James Hetfield|
 		And the JRN_STATUS_TYPE_CD = "I"	
-		And the JRN_USER_ID = sourceSysUser
-		And the JRN_EXTNL_APPLCN_NM = SourceSystem
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
 	    And the JRN_DT = sourceDate
-	    And the JRN_OBJ_ID = orginatingSourceSys
+		And the JRN_OBJ_ID = "VET360AddressUp"	
 	
+	Scenario: Email BIO does not have sourceSysUser provenance field populated
+		Given the following VET360 person Email BIO received from the CUF changelog
+        	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|orginatingSourceSys|
+			| ADR         | metallica@oldies.com   | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         |                 |   5   |VAMC-433           |
+    	When sourceSysUser is NULL
+ 		Then the Adapter inserts the following record, populates JRN_EXTNL_USER_ID with value "UNK_USER" and sends "COMPLETED_SUCCESS" response to CUF
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |   JRN_EXTNL_KEY_TXT |  JRN_EXTNL_USER_ID |
+			| EMAIL         	    | metallic@oldies.com  | Today    |  ADR,VAMC-433       | UNK_USER           | 
+		And the JRN_STATUS_TYPE_CD = "I"	
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
+	    And the JRN_DT = sourceDate
+		And the JRN_OBJ_ID = "VET360AddressUp"	
+
+	Scenario: Email BIO does not have orginatingSourceSys provenance field populated
+		Given the following VET360 person Email BIO received from the CUF changelog
+        	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|orginatingSourceSys|
+			| ADR         | metallic@oldies.com    | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         | Jason           |   6   |                   |
+    	When orginatingSourceSys is NULL
+ 		Then the Adapter inserts the following record, appends "UNK_OSS" to JRN_EXTNL_KEY_TXT and sends "COMPLETED_SUCCESS" response to CUF
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |   JRN_EXTNL_KEY_TXT |  JRN_EXTNL_USER_ID |
+			| EMAIL         	    | metallic@oldies.com  | Today    |  ADR,UNK_OSS        |  Jason             |
+		And the JRN_STATUS_TYPE_CD = "I"	
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
+	    And the JRN_DT = sourceDate
+		And the JRN_OBJ_ID = "VET360AddressUp"	
+
+	Scenario: Email BIO does not have orginatingSourceSys and sourceSysUser provenance fields populated
+		Given the following VET360 person Email BIO received from the CUF changelog
+        	|sourceSystem | emailAddressText       | effectiveStartDate |sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|orginatingSourceSys|
+			| ADR         | metallic@oldies.com    | Today              | Today       | Today            | NO_KNOWN_PROBLEM | True         |                 |   6   |                   |
+    	When orginatingSourceSys is NULL
+    	And sourceSystemUser is NULL
+ 		Then the Adapter inserts the following record, appends "UNK_OSS" to JRN_EXTNL_KEY_TXT, populates JRN_EXTNL_USER_ID with value "UNK_USER", and sends "COMPLETED_SUCCESS" response to CUF
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT       | EFCTV_DT |   JRN_EXTNL_KEY_TXT |  JRN_EXTNL_USER_ID |
+			| EMAIL         	    | metallic@oldies.com  | Today    |  ADR,UNK_OSS        | UNK_USER           |
+		And the JRN_STATUS_TYPE_CD = "I"	
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
+	    And the JRN_DT = sourceDate
+		And the JRN_OBJ_ID = "VET360AddressUp"	
+
 	Scenario: Veteran only has a work email on record and retires
 		Given the following VET360 person Email BIO received from the CUF changelog
-        	|sourceSystem | emailAddressText       | effectiveStartDate | effectiveEndDate|sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|
-			| VETSGOV     | Fade2Black@oldies.com  | Today-30           | Today           | Today       | Today            | NO_KNOWN_PROBLEM | False        | Bob Sieger      |   2   |
+        	|sourceSystem | emailAddressText       | effectiveStartDate | effectiveEndDate|sourceDate   | confirmationDate | emailStatusCode  | emailPermInd |sourceSystemUser |emailId|orginatingSourceSys|
+			| VETS360     | Fade2Black@oldies.com  | Today-30           | Today           | Today       | Today            | NO_KNOWN_PROBLEM | False        | Bob Sieger      |   4   | Vets.gov          |
         When the changelog BIO matches to a record in Corp Email table in the database 
 		And the record is active
 		Then the Adapter will delete the record as follows and sends "COMPLETED_SUCCESS" response to CUF
-			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT         | EFCTV_DT |  END_DT    |   JRN_LCTN_ID     |  
-			| EMAIL         	    | Fade2Black@oldies.com  | Today-30 | Today      | <CorpProvided>	 | 
+			| PTCPNT_ADDRS_TYPE_NM  |EMAIL_ADDRS_TXT         | EFCTV_DT |  END_DT    |    JRN_EXTNL_KEY_TXT                | 
+			| EMAIL         	    | Fade2Black@oldies.com  | Today-30 | Today      | VETS360,Vets.gov,Bob Sieger         | 
 		And the JRN_STATUS_TYPE_CD = "U"	
-		And the JRN_USER_ID = sourceSysUser
-		And the JRN_EXTNL_APPLCN_NM = SourceSystem
+		And JRN_LCTN_ID = "281"
+		And the JRN_USER_ID = "VET360SYSACCT"
+		And the JRN_EXTNL_APPLCN_NM = "vet360adapter"
 	    And the JRN_DT = sourceDate
-	    And the JRN_OBJ_ID = orginatingSourceSys
+		And the JRN_OBJ_ID = "VET360AddressUp"	
 
 			
