@@ -10,12 +10,12 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
 
     Assumptions:
 	- International numbers will not be in scope for IOC.
-	- Veteran records with 2 PARTICIPANT_IDs will be sent to the Error Queue and never populate in the changelog.
-	- Any change pushed to Corp by VET360 is already validated as an Living Veteran.
-	- Adapter will be able to query existing records in Corp
+	- Veteran records with 2 PARTICIPANT_IDs in MVI will be sent to the Error Queue and never populate in the changelog.
+	- Any change pushed to Adapter to Corp by VET360 is already validated as an Living Veteran.
+	- Adapter will be able to query existing records in Corp.
 	- If no Corp correlated ID/participant ID is present in the CUF change log queue message then we will drop the change and post back to the CUF a COMPLETED_NOOP
 	- Contact information change pushed out to Corp that matches records will be End-Dated even if the 
-		core fields (e.g. area number, phone number, extension) are identical thus updating the provenance fields (i.e. the mapped JRN_XX columns)
+		core fields (e.g. area number, phone number, extension) are identical thus updating the provenance fields (i.e. the mapped JRN_XX columns)#Check before sending//
 		
     Field Mappings:
 	- New PTCPNT_PHONE record is created with VET360 effectiveStartDate.
@@ -112,7 +112,7 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
 	Scenario: Dropping a Phone Number record that does not have a correlated PARTICIPANT_ID in MVI
 		Given a valid VET360 person phone BIO received from the CUF changelog
 		When the changelog BIO PARTICIPANT_ID is NULL
-		Then the Adapter will drop record and sends "COMPLETED_NOOP" to CUF#Pending Michelle
+		Then the Adapter will drop record and sends "COMPLETED_NOOP" to CUF
 	
 	Scenario Outline: Updating one existing record in Corp
 		Given the following VET360 person phone BIO received from the CUF changelog 
@@ -126,7 +126,7 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
 			| <phoneType>   |6585098   | Today -90|Today   | 703	  |	281       	|     U               | VET360PHONE|            |  vet360adapter      | Today     | VET360SYSACCT | VET360,ADR             | VHAISDFAULKJ    |
 		And commits the following new PTCPNT_PHONE record with "<VET360phoneType>" and sends "COMPLETED_SUCCESS" response to CUF
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | JRN_DT | JRN_LCTN_ID | JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_APPLCN_NM | JRN_EXTNL_KEY_TXT      |JRN_EXTNL_USER_ID|
-     		| <phoneType>	|6585098   | Today	  |	       | 703	  | Today  | 	281      |VET360SYSACCT|     I              | VET360PHONE|  12345     |		vet360adapter   | VET360,ADR,VHAISDFAULKJ|VHAISDFAULKJ     |
+     		| <phoneType>	|6585098   | Today	  |	       | 703	  | Today  | 	281      |VET360SYSACCT|     I              | VET360PHONE|  12345     |		vet360adapter   | VET360,ADR             |VHAISDFAULKJ     |
 	    Examples:
 		| phoneType |VET360phoneType|
 		|Daytime    |Work  |
