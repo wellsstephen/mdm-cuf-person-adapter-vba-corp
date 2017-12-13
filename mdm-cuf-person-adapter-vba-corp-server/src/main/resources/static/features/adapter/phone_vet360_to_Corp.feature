@@ -7,7 +7,9 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
     - Matching: Returned PTCPNT_ID from MVI call equals the PTCPNT_ID of the destination table (PTCPNT_PHONE or PTCPNT_ADDRS)
     - Active: Current date falling between the EFCTV_DT and END_DT (or END_DT is null)
     - Delete: END_DT of Corp record will be equal to VET360 effectiveEndDate
-
+    - Standardization: Vet360 CUF has modified the data that doesn't fundamentally change the contact info record 
+    - Pristine: No change was made by the Vet360 CUF
+    
     Assumptions:
 	- International numbers will not be in scope for IOC.
 	- Veteran records with 2 PARTICIPANT_IDs in MVI will be sent to the Error Queue and never populate in the changelog.
@@ -114,6 +116,23 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
 		When the changelog BIO PARTICIPANT_ID is NULL
 		Then the Adapter will drop record and sends "COMPLETED_NOOP" to CUF
 	
+	Scenario Outline: Dropping a "pristine" phone record that originated from Corp  
+		Given the following VET360 person phone BIO received from the CUF changelog 
+			| SourceSystem |internationalInd | phoneType         | countryCode | areaCode | phoneNumber | phoneNumberExt | ttyInd | sourceDate | voiceMailAcceptableInd | textMessageCapableInd | textMessagePermInd | effectiveStartDate | sourceSysUser  | orginatingSourceSys|effectiveEndDate|
+			| Corp         | False		 	 | <VET360phoneType> |   	1	   | 305      | 6733493	    | 12345		     | False  | Today      | False       		    |  False                | False              | Today              | VSCLYARB       | VBMS  - CEST       |                |
+		When the changelog BIO txtAuditId matches to a CDC_Staging_Corp_Table txtAuditId  
+		And has PHONE_TYPE_NM of "<phoneType>"
+		And phoneNumber equals PHONE_NBR
+		And areaCode equals AREA_NBR
+		And phoneNumberExt equals EXTNSN_NBR
+		Then the Adapter will drop record and sends "COMPLETED_SUCCESS" to CUF 
+		Examples:
+		| phoneType |VET360phoneType|
+		|Daytime    |Work  |
+		|Nighttime  |Home  |
+		|Fax        |Fax   |
+		|Cellular   |Mobile|
+
 	Scenario Outline: Updating one existing record in Corp
 		Given the following VET360 person phone BIO received from the CUF changelog 
 			| SourceSystem |internationalInd | phoneType         | countryCode | areaCode | phoneNumber | phoneNumberExt | ttyInd | sourceDate | voiceMailAcceptableInd | textMessageCapableInd | textMessagePermInd | effectiveStartDate | sourceSysUser  | orginatingSourceSys|
@@ -121,7 +140,7 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
 		When the changelog BIO matches to a record in Corp Phone table in the database
 		And the record is active
 		And has PHONE_TYPE_NM of "<phoneType>"
-		Then the Adapter will populate the END_DT field with the changelog BIO effectiveStartDate value as follows
+		Then the Adapter will populate the END_DT field of the matching record with the changelog BIO effectiveStartDate value as follows
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | JRN_LCTN_ID |  JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_APPLCN_NM |JRN_DT     | JRN_USER_ID   | JRN_EXTNL_KEY_TXT      |JRN_EXTNL_USER_ID|
 			| <phoneType>   |6585098   | Today -90|Today   | 703	  |	281       	|     U               | VET360PHONE|            |  vet360adapter      | Today     | VET360SYSACCT | VET360,ADR             | VHAISDFAULKJ    |
 		And commits the following new PTCPNT_PHONE record with "<VET360phoneType>" and sends "COMPLETED_SUCCESS" response to CUF
@@ -141,7 +160,7 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
 		When the changelog BIO matches to two Corp records in Corp Phone table in the database
 		And the record is active
 		And has PHONE_TYPE_NM of "<phoneType>"
-		Then the Adapter will populate the END_DT fields with changelog BIO effectiveStartDate value as follows 
+		Then the Adapter will populate the END_DT fields of the matching record with changelog BIO effectiveStartDate value as follows 
 			| PHONE_TYPE_NM |PHONE_NBR    | EFCTV_DT     | END_DT | AREA_NBR | JRN_LCTN_ID  |  JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_APPLCN_NM |JRN_DT | JRN_USER_ID  |JRN_EXTNL_USER_ID|
 			| <phoneType>	   |6585098   | Today -90    |Today   | 703	     |	281      	|     U               | VET360PHONE|            |	vet360adapter     | Today | VET360SYSACCT|Jane             |
 			| <phoneType>	   |6585093   | Today -90    |Today   | 703	     |	281     	|     U               | VET360PHONE|            |	vet360adapter     | Today |VET360SYSACCT |Jane             |
@@ -224,6 +243,29 @@ Feature: Adapt VET360 phone number BIO to Corp PTCPNT_PHONE data table
 			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | JRN_LCTN_ID |   JRN_USER_ID | JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_APPLCN_NM | JRN_DT  |JRN_EXTNL_KEY_TXT        |JRN_EXTNL_USER_ID|
 			| <phoneType>   |7574152   | Today-30 |  Today | 760	  |	281      	|  VET360SYSACCT|     U              | VET360PHONE|            | vet360adapter       |	Today  |VET360,Vets.gov          |Jane			   |
 			| <phoneType>   |7574151   | Today-22 |  Today | 760	  | 281       	|  VET360SYSACCT|     U              | VET360PHONE|            | vet360adapter       |	Today  |VET360,Vets.gov          |Jane             |
+	    Examples:
+		| phoneType |VET360phoneType|
+		|Daytime    |Work  |
+		|Nighttime  |Home  |
+		|Fax        |Fax   |
+		|Cellular   |Mobile|
+	
+	Scenario Outline: Phone record "core" fields from non-Corp source is identical to active Corp record
+		Given the following VET360 person phone BIO received from the CUF changelog 
+			| SourceSystem |internationalInd | phoneType         | countryCode | areaCode | phoneNumber | phoneNumberExt | ttyInd | sourceDate | voiceMailAcceptableInd | textMessageCapableInd | textMessagePermInd | effectiveStartDate | sourceSysUser  | orginatingSourceSys|effectiveEndDate|
+			| VHAES   	   | False		 	 | <VET360phoneType> |   	1	   | 305      | 6733493	    | 12345		     | False  | Today      | True       		    |  False                | True               | Today              |                | VAMC               |                |
+		When the changelog BIO matches to a record in Corp Phone table in the database
+		And the record is active
+		And has PHONE_TYPE_NM of "<phoneType>"
+		And phoneNumber equals PHONE_NBR
+		And areaCode equals AREA_NBR
+		And phoneNumberExt equals EXTNSN_NBR
+		Then the Adapter will populate the END_DT field of the matching record with the changelog BIO effectiveStartDate value as follows
+			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | JRN_LCTN_ID |  JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_APPLCN_NM |JRN_DT     | JRN_USER_ID   | JRN_EXTNL_KEY_TXT      |JRN_EXTNL_USER_ID|
+			| <phoneType>   |6733493   | Today -90|Today   | 305	  |	281       	|     U               | VET360PHONE| 12345      |  vet360adapter      | Today     | VET360SYSACCT | VAMC,VHAES             | UNK_USER    |
+		And commits the following new PTCPNT_PHONE record and sends "COMPLETED_SUCCESS" response to CUF
+			| PHONE_TYPE_NM |PHONE_NBR | EFCTV_DT | END_DT | AREA_NBR | JRN_LCTN_ID |  JRN_STATUS_TYPE_CD | JRN_OBJ_ID | EXTNSN_NBR | JRN_EXTNL_APPLCN_NM |JRN_DT     | JRN_USER_ID   | JRN_EXTNL_KEY_TXT      |JRN_EXTNL_USER_ID|
+			| <phoneType>   |6733493   | Today    |        | 305	  |	281       	|     I               | VET360PHONE| 12345      |  vet360adapter      | Today     | VET360SYSACCT | VAMC,VHAES             | UNK_USER    |
 	    Examples:
 		| phoneType |VET360phoneType|
 		|Daytime    |Work  |
