@@ -19,6 +19,7 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 	- If no Corp correlated ID/participant ID is present in the CUF change log queue message then we will drop the change and post back to the CUF a COMPLETED_NOOP
 	- Contact information change pushed out to Corp that matches records will be End-Dated even if the 
 		core fields (e.g. email text) are identical thus updating the provenance fields (i.e. the mapped JRN_XX columns)
+    - Adapter has to check SNTVTY_LEVEL table, in the SCRTY_LEVEL_TYPE_CD column if the Veteran is sensitivity level 8 or 9; drop if it is, COMPLETED_NOOP.
 	
     Field Mappings:
 	- Corp record is created with EFCTV_DT matching VET360 effectiveStartDate .
@@ -107,6 +108,11 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 	Scenario: Dropping an Email record that does not have a correlated PARTICIPANT_ID in MVI
 		Given a valid VET360 person Email BIO received from the CUF changelog
 		When the changelog BIO PARTICIPANT_ID is NULL
+		Then the Adapter will drop record and sends "COMPLETED_NOOP" to CUF
+
+	Scenario: Dropping an Email record that has sensitivity level of 8 or 9 
+		Given a valid VET360 person Email BIO received from the CUF changelog
+		When the changelog BIO PARTICIPANT_ID is correlates to SCRTY_LEVEL_TYPE_CD of 8 or 9
 		Then the Adapter will drop record and sends "COMPLETED_NOOP" to CUF
 
 	Scenario: Accepting and not syncing a "pristine" Email record that originated from Corp  
@@ -273,5 +279,4 @@ Feature: Adapt VET360 Email BIO to Corp Address data table
 	    And the JRN_DT = sourceDate
 		And the JRN_OBJ_ID = "VET360AddressUp"	
 
-
-			
+		
