@@ -13,7 +13,9 @@ Feature: Adapt VBA Corp phone number DIO to VET360 phone record table
 	- Corp-CDC-Staging-Table Phone specific DB view/table will only expose mapped fields that are required for changes.
 	- Corp-CDC-Staging-Table will ONLY stage records where PHONE_TYPE_NM equals "Daytime", "Nighttime", "Fax", or "Cellular".
 	- Adapter will not check if a record is active and belongs to a living veteran without a fiduciary.
-	- Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI.#Follow up meeting with BGS/MVI/CORP 
+	- Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI.
+	- Corp-CDC-Staging-Table will check SNTVTY_LEVEL table, in the SCRTY_LEVEL_TYPE_CD column if the Veteran is sensitivity level 8 or 9; do not stage if it is.
+    - Adapter will have to handle update transactions (END-DT active record, insert new) from Corp through the Corp-CDC-Staging-Table. 
 	
 	Field Mappings:
 	- VET360 record is created with effectiveStartDate matching Corp EFCTV_DT.

@@ -10,7 +10,9 @@ Feature: Adapt Corp Email BIO to VET360 Address data table
 	- Corp-CDC-Staging-Table Email specific DB view/table will only expose mapped fields that are required for changes.
 	- Corp-CDC-Staging-Table will ONLY stage records where PTCPNT_ADDRS_TYPE_NM equals "EMAIL".
     - Adapter will not check if a record is active and belongs to a living veteran without a fiduciary.	
-    - Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI.#Follow up meeting with BGS/MVI/CORP  
+    - Corp-CDC-Staging-Table will include Corp MVI staging table to make sure Adapter does not touch records awaiting synch to MVI.
+    - Corp-CDC-Staging-Table will check SNTVTY_LEVEL table, in the SCRTY_LEVEL_TYPE_CD column if the Veteran is sensitivity level 8 or 9; do not stage if it is.
+    - Adapter will have to handle update transactions (END-DT active record, insert new) from Corp through the Corp-CDC-Staging-Table.
 	
     Field Mappings:
 	- Records from Corp are PTCPNT_ADDRS records with a PTCPNT_ADDRS_TYPE_NM equal to "EMAIL"
