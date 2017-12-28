@@ -1,0 +1,138 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+  	  <groupId>mdm.cuf.person.adapter.vba.corp</groupId>
+  	  <artifactId>mdm-cuf-person-adapter-vba-corp-parentpom</artifactId>
+  	  <version>0.1-SNAPSHOT</version>
+  	  <relativePath>../mdm-cuf-person-adapter-vba-corp-parentpom</relativePath>
+  </parent>
+  
+  <artifactId>mdm-cuf-person-adapter-vba-corp-db</artifactId>
+  <packaging>jar</packaging>
+  <name>${project.artifactId}</name>
+  <description>MDM CUF Person Adapter VbaCorp Database Schema Creation - Liquibase XML to produce SQL files for the required base Person Adapter VbaCorp Server to function.  CUF Core tables are contained in the mdm-cuf-core-db project upstream</description>
+
+  <properties>
+	  <!-- This should remain empty and overridden by -D params to maven -->
+	  <liquibase.env></liquibase.env>
+  </properties>
+  
+  <dependencies>
+    <dependency>
+			<groupId>mdm.cuf.core</groupId>
+			<artifactId>mdm-cuf-core-db</artifactId>
+		</dependency>
+		
+		<!-- spring boot dependencies -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+  </dependencies>
+  
+  	<profiles>
+		<!-- 
+			Profile to full sql release artifacts
+		-->
+         <profile>
+            <id>full-sql</id>
+            <build>
+                <plugins>
+                    <plugin>
+		                <groupId>org.liquibase</groupId>
+		                <artifactId>liquibase-maven-plugin</artifactId>
+		                <version>${liquibase.version}</version>
+		                <configuration>
+		                    <propertyFile>src/main/resources/cuf-person-adapter-vba-corp-database/liquibase${liquibase.env}.properties</propertyFile>
+		                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+		                </configuration>
+		                <executions>
+		                    <execution>
+		                        <id>full-sql-script</id>
+		                        <phase>prepare-package</phase>
+		                        <goals>
+		                            <goal>dropAll</goal>
+		                            <goal>updateSQL</goal>
+		                        </goals>
+		                        <configuration>
+		                            <migrationSqlOutputFile>${project.build.directory}/liquibase/full.sql</migrationSqlOutputFile>
+		                        </configuration>
+		                    </execution>
+		                </executions>
+		            </plugin>
+		       </plugins>
+            </build>
+         </profile>
+         
+         <!-- 
+            Profile to update a database
+         -->
+         <profile>
+            <id>update-db</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+		                <artifactId>liquibase-maven-plugin</artifactId>
+		                <version>${liquibase.version}</version>
+		                <configuration>
+		                      <propertyFile>src/main/resources/cuf-person-adapter-vba-corp-database/liquibase${liquibase.env}.properties</propertyFile>
+		                      <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+		                </configuration>
+                        <executions>
+                            <execution>
+                                <id>update</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>update</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>clean</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>dropAll</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+         </profile>
+         
+         <!-- 
+            Profile to rollback a database to specified tag
+         -->
+         <profile>
+            <id>rollback-tag</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>${liquibase.version}</version>
+                        <configuration>
+                              <propertyFile>src/main/resources/cuf-person-adapter-vba-corp-database/liquibase${liquibase.env}.properties</propertyFile>
+                              <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>rollback</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>rollback</goal>
+                                </goals>
+                                <configuration>
+                                    <rollbackTag>${rollbackTag}</rollbackTag>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+         </profile>
+	</profiles>
+</project>

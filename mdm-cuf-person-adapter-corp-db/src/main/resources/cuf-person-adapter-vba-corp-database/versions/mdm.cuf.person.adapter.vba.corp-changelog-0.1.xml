@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+         
+    <changeSet author="rnewman (generated)" id="SEQ_SET">
+    	<createSequence cycle="false" incrementBy="1" ordered="false" sequenceName="SEQ_PTCPNT_ADDRS_ID" startValue="1"/>
+    </changeSet>
+         
+	<changeSet id="PTCPNT_ADDRS" author="rnewman (generated)">
+		<createTable tableName="PTCPNT_ADDRS">
+			<column name="PTCPNT_ADDRS_ID" type="NUMBER(15, 0)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="PTCPNT_ID" type="NUMBER(15, 0)">
+				<constraints nullable="false" unique="true"/>
+			</column>
+			<column name="PTCPNT_ADDRS_TYPE_NM" type="VARCHAR2(50 CHAR)">
+			    <constraints nullable="false" unique="true"/>
+			</column>
+			<column name="EFCTV_DT" type="TIMESTAMP(6)">
+				<constraints nullable="false" unique="true"/>
+			</column>
+			<column name="ADDRS_ONE_TXT" type="VARCHAR2(35 CHAR)"/>
+			<column name="ADDRS_TWO_TXT" type="VARCHAR2(35 CHAR)"/>
+			<column name="ADDRS_THREE_TXT" type="VARCHAR2(35 CHAR)"/>
+			<column name="CITY_NM" type="VARCHAR2(30 CHAR)"/>
+			<column name="COUNTY_NM" type="VARCHAR2(30 CHAR)"/>
+			<column name="ZIP_PREFIX_NBR" type="VARCHAR2(5)"/>
+			<column name="ZIP_FIRST_SUFFIX_NBR" type="VARCHAR2(4)"/>
+			<column name="ZIP_SECOND_SUFFIX_NBR" type="VARCHAR2(2)"/>
+			<column name="END_DT" type="TIMESTAMP(6)"/>
+			<column name="POSTAL_CD" type="VARCHAR2(2)"/>
+			<column name="CNTRY_TYPE_NM" type="VARCHAR2(50)"/>
+			<column name="BAD_ADDRS_IND" type="VARCHAR2(1)"/>
+			<column name="TRSURY_SEQ_NBR" type="NUMBER(4)"/>
+			<column name="EMAIL_ADDRS_TXT" type="VARCHAR2(254)"/>
+			<column name="MLTY_POSTAL_TYPE_CD" type="VARCHAR2(12)"/>
+			<column name="MLTY_POST_OFFICE_TYPE_CD" type="VARCHAR2(12)"/>
+			<column name="FRGN_POSTAL_CD" type="VARCHAR2(16)"/>
+			<column name="PRVNC_NM" type="VARCHAR2(35)"/>
+			<column name="TRTRY_NM" type="VARCHAR2(35)"/>
+			<column name="EFT_WAIVER_TYPE_NM" type="VARCHAR2(50)"/>
+			<column name="FMS_ADDRS_CODE_TXT" type="VARCHAR2(2)"/>
+			<column name="LCTN_NM" type="VARCHAR2(50)"/>
+			<column name="TRSURY_ADDRS_ONE_TXT" type="VARCHAR2(20)"/>
+			<column name="TRSURY_ADDRS_TWO_TXT" type="VARCHAR2(20)"/>
+			<column name="TRSURY_ADDRS_THREE_TXT" type="VARCHAR2(20)"/>
+			<column name="TRSURY_ADDRS_FOUR_TXT" type="VARCHAR2(20)"/>
+			<column name="TRSURY_ADDRS_FIVE_TXT" type="VARCHAR2(20)"/>
+			<column name="TRSURY_ADDRS_SIX_TXT" type="VARCHAR2(20)"/>
+			<column name="SHARED_ADDRS_IND" type="VARCHAR2(1)" defaultValue="N">
+				<constraints nullable="false"/>
+			</column>
+			<column name="GROUP1_VERIFD_TYPE_CD" type="VARCHAR2(12)"/>
+			<column name="BENE_NM" type="VARCHAR2(35)"/>
+			<column name="FID_NM" type="VARCHAR2(35)"/>
+			<column name="PRPTNL_PHRASE_TYPE_NM" type="VARCHAR2(50)"/>
+			<column name="PTCPNT_FID_ID" type="NUMBER(15,0)"/>
+			<column name="BENE_NM_MODIFD_IND" type="VARCHAR2(1)"/>
+			<column name="FID_NM_MODIFD_IND" type="VARCHAR2(1)"/>
+			<column name="CREATE_DT" type="TIMESTAMP(6)"/>
+			<column name="CREATE_LCTN_ID" type="VARCHAR2(4)"/>
+			<column name="CREATE_USER_ID" type="VARCHAR2(50)"/>
+			<column name="CREATE_OBJ_ID" type="VARCHAR2(32)"/>
+			<column name="CREATE_EXTNL_USER_ID" type="VARCHAR2(50)"/>
+			<column name="CREATE_EXTNL_KEY_TXT" type="VARCHAR2(50)"/>
+			<column name="CREATE_EXTNL_APPLCN_NM" type="VARCHAR2(50)"/>
+			<column name="JRN_DT" type="TIMESTAMP(6)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_LCTN_ID" type="VARCHAR2(4)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_USER_ID" type="VARCHAR2(50)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_STATUS_TYPE_CD" type="VARCHAR2(12)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_OBJ_ID" type="VARCHAR2(32)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_EXTNL_USER_ID" type="VARCHAR2(50)"/>
+			<column name="JRN_EXTNL_KEY_TXT" type="VARCHAR2(50)"/>
+			<column name="JRN_EXTNL_APPLCN_NM" type="VARCHAR2(50)"/>
+			<column name="JRN_UNVRFD_PTCPNT_ID" type="NUMBER(15, 0)"/>
+		</createTable>
+	</changeSet>
+	
+	<changeSet author="rnewman (generated)" id="PK_PTCPNT_ADDRS">
+		<createIndex indexName="PK_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" unique="true" tablespace="CORP_NDX">
+			<column name="PTCPNT_ADDRS_ID"/>
+		</createIndex>
+		<addPrimaryKey tableName="PTCPNT_ADDRS" columnNames="PTCPNT_ADDRS_ID" constraintName="PK_PTCPNT_ADDRS"/>
+	</changeSet>
+	<changeSet author="renewman (generated)" id="UK_PTCPNT_ADDRS">
+		<createIndex indexName="UK_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" unique="true" tablespace="CORP_NDX">
+			<column name="PTCPNT_ID"/>
+			<column name="PTCPNT_ADDRS_TYPE_NM"/>
+			<column name="EFCTV_DT"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman(generated)" id="IX1_PTCPNT_ADDRS">
+		<createIndex indexName="IX1_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" tablespace="CORP_NDX">
+			<column name="POSTAL_CD"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX2_PTCPNT_ADDRS">
+		<createIndex indexName="IX2_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" tablespace="CORP_NDX">
+			<column name="CITY_NM"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX3_PTCPNT_ADDRS">
+		<createIndex indexName="IX3_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" tablespace="CORP_NDX">
+			<column name="ZIP_PREFIX_NBR"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX4_PTCPNT_ADDRS">
+		<createIndex indexName="IX4_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" tablespace="CORP_NDX">
+			<column name="FRGN_POSTAL_CD"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX5_PTCPNT_ADDRS">
+		<createIndex indexName="IX5_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" tablespace="CORP_NDX">
+			<column name="LCTN_NM"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX6_PTCPNT_ADDRS">
+		<createIndex indexName="IX6_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" tablespace="CORP_NDX">
+			<column name="CNTRY_TYPE_NM"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX7_PTCPNT_ADDRS">
+		<createIndex indexName="IX7_PTCPNT_ADDRS" tableName="PTCPNT_ADDRS" tablespace="CORP_NDX">
+			<column name="PTCPNT_ID"/>
+		</createIndex>
+	</changeSet>
+	
+</databaseChangeLog>

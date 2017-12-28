@@ -32,6 +32,10 @@ logging:
 mdm-cuf: 
   instance-subject-name: PERSON
   instance-system-name: VBACORP
+  
+# Have the application update the database schema to the current version on startup
+liquibase:
+  changeLog: classpath:/cuf-person-adapter-vba-corp-database/mdm.cuf.person.adapter.vba.corp-master-changelog.xml
 
 ---
 #----------------------------------------------------------------------------------------------------------------------
@@ -40,6 +44,9 @@ mdm-cuf:
 #----------------------------------------------------------------------------------------------------------------------
 spring:
   profiles: ENV-LOCAL-DEV
+  
+liquibase:
+  enabled: true
 ---
 #----------------------------------------------------------------------------------------------------------------------
 # ENV-UNIT-TESTPROFILE
@@ -48,6 +55,9 @@ spring:
 spring:
   profiles: ENV-UNIT-TEST
   profiles.include: PARTNER-SIM
+  
+liquibase:
+  enabled: false
 ---
 #----------------------------------------------------------------------------------------------------------------------
 # ENV-CI-DEV PROFILE
@@ -60,6 +70,9 @@ spring:
 mdm-cuf:
   multi-tenant-postfix: -DEV
   async.servers: kafka:9092
+  
+liquibase:
+  enabled: false
 ---
 #----------------------------------------------------------------------------------------------------------------------
 # ENV-CI-ALPHA PROFILE
@@ -72,4 +85,7 @@ spring:
 mdm-cuf:
   multi-tenant-postfix: -ALPHA
   async.servers: kafka:9092 
+  
+liquibase:
+  enabled: false
 

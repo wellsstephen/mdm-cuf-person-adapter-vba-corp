@@ -43,7 +43,12 @@
 			<groupId>mdm.cuf.person</groupId>
 			<artifactId>mdm-cuf-person-bio</artifactId>
 		</dependency>
-
+		
+		<!-- mdm-cuf-person-adapter-vba-corp dependencies -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>mdm-cuf-person-adapter-vba-corp-db</artifactId>
+		</dependency>
 
 		<!-- spring boot dependencies -->
 		<dependency>
