@@ -36,6 +36,8 @@
 			    <type>test-jar</type>
 			    <scope>test</scope>
 			</dependency>
+			
+			<!-- mdm-cuf-person-adapter-vba-corp dependencies -->
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>mdm-cuf-person-adapter-vba-corp-db</artifactId>

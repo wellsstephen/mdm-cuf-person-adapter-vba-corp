@@ -24,13 +24,6 @@
 			<groupId>mdm.cuf.core</groupId>
 			<artifactId>mdm-cuf-core-db</artifactId>
 		</dependency>
-		
-		<!-- spring boot dependencies -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<optional>true</optional>
-		</dependency>
   </dependencies>
   
   	<profiles>
