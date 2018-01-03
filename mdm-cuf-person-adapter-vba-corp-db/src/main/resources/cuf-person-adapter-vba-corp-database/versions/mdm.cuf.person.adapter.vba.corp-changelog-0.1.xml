@@ -8,7 +8,9 @@
     <changeSet author="rnewman (generated)" id="SEQ_SET">
     	<createSequence cycle="false" incrementBy="1" ordered="false" sequenceName="SEQ_PTCPNT_ADDRS_ID" startValue="1"/>
     </changeSet>
-         
+    
+    
+    <!-- CORP TABLE FOR PTCPNT_ADDRS -->     
 	<changeSet id="PTCPNT_ADDRS" author="rnewman (generated)">
 		<createTable tableName="PTCPNT_ADDRS">
 			<column name="PTCPNT_ADDRS_ID" type="NUMBER(15, 0)">
@@ -139,4 +141,74 @@
 		</createIndex>
 	</changeSet>
 	
+	
+	
+	<!-- CORP TABLE FOR PTCPNT_PHONE -->
+	<changeSet id="PTCPNT_PHONE" author="rnewman (generated)">
+		<createTable tableName="PTCPNT_PHONE">
+			<column name="PTCPNT_ID" type="NUMBER(15, 0)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="PHONE_TYPE_NM" type="VARCHAR2(50)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="PHONE_NBR" type="NUMBER(1, 0)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="EFCTV_DT" type="TIMESTAMP(6)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="END_DT" type="TIMESTAMP(6)"/>
+			<column name="AREA_NBR" type="NUMBER(4, 0)"/>
+			<column name="EXTNSN_NBR" type="VARCHAR2(5)"/>
+			<column name="CNTRY_NBR" type="NUMBER(4,0)"/>
+			<column name="FRGN_PHONE_RFRNC_TXT" type="VARCHAR2(30)"/>
+			<column name="JRN_DT" type="TIMESTAMP(6)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_LCTN_ID" type="VARCHAR2(4)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_USER_ID" type="VARCHAR2(50)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_STATUS_TYPE_CD" type="VARCHAR2(12)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_OBJ_ID" type="VARCHAR2(32)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="JRN_EXTNL_USER_ID" type="VARCHAR2(50)"/>
+			<column name="JRN_EXTNL_KEY_TXT" type="VARCHAR2(50)"/>
+			<column name="JRN_EXTNL_APPLCN_NM" type="VARCHAR2(50)"/>
+		</createTable>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="PK_PTCPNT_PHONE">
+		<createIndex tableName="PTCPNT_PHONE" indexName="PK_PTCPNT_PHONE" unique="true">
+			<column name="PTCPNT_ID"/>
+			<column name="PHONE_TYPE_NM"/>
+			<column name="EFCTV_DT"/>
+		</createIndex>
+		<addPrimaryKey tableName="PTCPNT_PHONE" columnNames="PTCPNT_ID,PHONE_TYPE_NM,EFCTV_DT"/>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX1_PTCPNT_PHONE">
+		<createIndex tableName="PTCPNT_PHONE" indexName="IX1_PTCPNT_PHONE" unique="false">
+			<column name="END_DT"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX2_PTCPNT_PHONE">
+		<createIndex tableName="PTCPNT_PHONE" indexName="IX2_PTCPNT_PHONE" unique="false">
+			<column name="PHONE_NBR"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX3_PTCPNT_PHONE">
+		<createIndex tableName="PTCPNT_PHONE" indexName="IX3_PTCPNT_PHONE" unique="false">
+			<column name="AREA_NBR"/>
+		</createIndex>
+	</changeSet>
+	<changeSet author="rnewman (generated)" id="IX4_PTCPNT_PHONE">
+		<createIndex tableName="PTCPNT_PHONE" indexName="IX4_PTCPNT_PHONE" unique="false">
+			<column name="PTCPNT_ID"/>
+		</createIndex>
+	</changeSet>
 </databaseChangeLog>
