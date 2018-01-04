@@ -152,7 +152,7 @@
 			<column name="PHONE_TYPE_NM" type="VARCHAR2(50)">
 				<constraints nullable="false"/>
 			</column>
-			<column name="PHONE_NBR" type="NUMBER(1, 0)">
+			<column name="PHONE_NBR" type="NUMBER(11, 0)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="EFCTV_DT" type="TIMESTAMP(6)">
@@ -184,7 +184,7 @@
 		</createTable>
 	</changeSet>
 	<changeSet author="rnewman (generated)" id="PK_PTCPNT_PHONE">
-		<createIndex tableName="PTCPNT_PHONE" indexName="PK_PTCPNT_PHONE" unique="true">
+		<createIndex tableName="PTCPNT_PHONE" indexName="PK_PTCPNT_PHONE" unique="true" tablespace="CORP_NDX">
 			<column name="PTCPNT_ID"/>
 			<column name="PHONE_TYPE_NM"/>
 			<column name="EFCTV_DT"/>
@@ -192,22 +192,22 @@
 		<addPrimaryKey tableName="PTCPNT_PHONE" columnNames="PTCPNT_ID,PHONE_TYPE_NM,EFCTV_DT"/>
 	</changeSet>
 	<changeSet author="rnewman (generated)" id="IX1_PTCPNT_PHONE">
-		<createIndex tableName="PTCPNT_PHONE" indexName="IX1_PTCPNT_PHONE" unique="false">
+		<createIndex tableName="PTCPNT_PHONE" indexName="IX1_PTCPNT_PHONE" unique="false" tablespace="CORP_NDX">
 			<column name="END_DT"/>
 		</createIndex>
 	</changeSet>
 	<changeSet author="rnewman (generated)" id="IX2_PTCPNT_PHONE">
-		<createIndex tableName="PTCPNT_PHONE" indexName="IX2_PTCPNT_PHONE" unique="false">
+		<createIndex tableName="PTCPNT_PHONE" indexName="IX2_PTCPNT_PHONE" unique="false" tablespace="CORP_NDX">
 			<column name="PHONE_NBR"/>
 		</createIndex>
 	</changeSet>
 	<changeSet author="rnewman (generated)" id="IX3_PTCPNT_PHONE">
-		<createIndex tableName="PTCPNT_PHONE" indexName="IX3_PTCPNT_PHONE" unique="false">
+		<createIndex tableName="PTCPNT_PHONE" indexName="IX3_PTCPNT_PHONE" unique="false" tablespace="CORP_NDX">
 			<column name="AREA_NBR"/>
 		</createIndex>
 	</changeSet>
 	<changeSet author="rnewman (generated)" id="IX4_PTCPNT_PHONE">
-		<createIndex tableName="PTCPNT_PHONE" indexName="IX4_PTCPNT_PHONE" unique="false">
+		<createIndex tableName="PTCPNT_PHONE" indexName="IX4_PTCPNT_PHONE" unique="false" tablespace="CORP_NDX">
 			<column name="PTCPNT_ID"/>
 		</createIndex>
 	</changeSet>
