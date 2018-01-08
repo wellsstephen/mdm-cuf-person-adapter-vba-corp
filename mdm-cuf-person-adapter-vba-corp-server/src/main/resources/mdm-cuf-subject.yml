@@ -36,7 +36,7 @@ mdm-cuf:
 # Have the application update the database schema to the current version on startup
 liquibase:
   changeLog: classpath:/cuf-person-adapter-vba-corp-database/mdm.cuf.person.adapter.vba.corp-master-changelog.xml
-
+  enabled: true # by default, use liquibase to setup DB
 ---
 #----------------------------------------------------------------------------------------------------------------------
 # ENV-LOCAL-DEV PROFILE
@@ -44,9 +44,8 @@ liquibase:
 #----------------------------------------------------------------------------------------------------------------------
 spring:
   profiles: ENV-LOCAL-DEV
+  jpa.hibernate.ddl-auto: none # turning this off when liquibase is used in local-dev
   
-liquibase:
-  enabled: true
 ---
 #----------------------------------------------------------------------------------------------------------------------
 # ENV-UNIT-TESTPROFILE
@@ -56,8 +55,8 @@ spring:
   profiles: ENV-UNIT-TEST
   profiles.include: PARTNER-SIM
   
-liquibase:
-  enabled: false
+#unit tests use jps create-drop vs. liquibase at this time
+liquibase.enabled: false
 ---
 #----------------------------------------------------------------------------------------------------------------------
 # ENV-CI-DEV PROFILE
@@ -70,22 +69,4 @@ spring:
 mdm-cuf:
   multi-tenant-postfix: -DEV
   async.servers: kafka:9092
-  
-liquibase:
-  enabled: false
----
-#----------------------------------------------------------------------------------------------------------------------
-# ENV-CI-ALPHA PROFILE
-# Profile for the highly controlled CI env where we run the first alpha release integration tests against fully controlled infrastructure
-#----------------------------------------------------------------------------------------------------------------------
-spring:
-  profiles: ENV-CI-ALPHA
-  profiles.include: PARTNER-SIM
-    
-mdm-cuf:
-  multi-tenant-postfix: -ALPHA
-  async.servers: kafka:9092 
-  
-liquibase:
-  enabled: false
 
