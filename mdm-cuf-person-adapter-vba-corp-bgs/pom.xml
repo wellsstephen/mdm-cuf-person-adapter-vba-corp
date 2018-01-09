@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>mdm.cuf.person.adapter.vba.corp</groupId>
+    <artifactId>mdm-cuf-person-adapter-vba-corp-all</artifactId>
+    <version>0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>mdm-cuf-person-adapter-vba-corp-server-bgs</artifactId>
+  <packaging>jar</packaging>
+  <name>${project.artifactId}</name>
+  <description>MDM CUF Person Adapter VBA Corp BGS Jar</description>
+
+
+  <dependencies>
+    <!-- mdm-cuf-person dependencies -->
+        <dependency>
+            <groupId>mdm.cuf.person</groupId>
+            <artifactId>mdm-cuf-person-bio</artifactId>
+        </dependency>
+
+    <!-- mdm-cuf-core dependencies -->
+        <dependency>
+            <groupId>mdm.cuf.core</groupId>
+            <artifactId>mdm-cuf-core</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>mdm.cuf.core</groupId>
+            <artifactId>mdm-cuf-core-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mdm.cuf.core</groupId>
+            <artifactId>mdm-cuf-core-server</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+		
+	<!-- apache cxf dependencies -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+        </dependency>
+
+	<!-- apache velocity dependencies -->
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-tools</artifactId>
+            <version>2.0</version>
+         </dependency>
+  </dependencies>
+ 
+ 
+  <build>
+        <defaultGoal>install</defaultGoal>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>test-jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            
+            <configuration>
+              <source>1.8</source>
+              <target>1.8</target>
+            </configuration>
+          </plugin>
+        </plugins>
+    </build>
+</project>
