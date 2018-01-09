@@ -17,7 +17,7 @@
 	<modules>
 		<module>mdm-cuf-person-adapter-vba-corp-parentpom</module>
         <module>mdm-cuf-person-adapter-vba-corp-db</module>
-        <module>mdm-cuf-person-adapter-vba-corp-server-bgs</module>
+        <module>mdm-cuf-person-adapter-vba-corp-bgs</module>
 		<module>mdm-cuf-person-adapter-vba-corp-server</module>
   </modules>
 </project>

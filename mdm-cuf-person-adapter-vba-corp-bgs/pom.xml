@@ -8,7 +8,7 @@
     <version>0.1-SNAPSHOT</version>
     <relativePath>../mdm-cuf-person-adapter-vba-corp-parentpom</relativePath>
   </parent>
-  <artifactId>mdm-cuf-person-adapter-vba-corp-server-bgs</artifactId>
+  <artifactId>mdm-cuf-person-adapter-vba-corp-bgs</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <description>MDM CUF Person Adapter VBA Corp BGS Jar</description>
