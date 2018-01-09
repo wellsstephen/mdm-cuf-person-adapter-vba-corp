@@ -6,6 +6,7 @@
     <groupId>mdm.cuf.person.adapter.vba.corp</groupId>
     <artifactId>mdm-cuf-person-adapter-vba-corp-all</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <relativePath>../mdm-cuf-person-adapter-vba-corp-parentpom</relativePath>
   </parent>
   <artifactId>mdm-cuf-person-adapter-vba-corp-server-bgs</artifactId>
   <packaging>jar</packaging>
