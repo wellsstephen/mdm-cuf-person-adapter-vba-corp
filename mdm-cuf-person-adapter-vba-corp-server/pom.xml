@@ -51,7 +51,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>mdm-cuf-person-adapter-vba-corp-bgs</artifactId>
+			<artifactId>mdm-cuf-person-adapter-vba-corp-server-bgs</artifactId>
 		</dependency>
 
 		<!-- spring boot dependencies -->
