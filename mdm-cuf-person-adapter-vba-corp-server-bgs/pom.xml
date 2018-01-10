@@ -38,7 +38,7 @@
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
-		
+
 	<!-- apache cxf dependencies -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -61,8 +61,8 @@
             <version>2.0</version>
          </dependency>
   </dependencies>
- 
- 
+
+
   <build>
         <defaultGoal>install</defaultGoal>
         <plugins>
@@ -80,7 +80,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            
+
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -93,18 +93,18 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            
+
             <configuration>
               <source>1.8</source>
               <target>1.8</target>
             </configuration>
           </plugin>
 
-        <plugin> 
+        <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>jaxws-maven-plugin</artifactId>
-            <executions> 
-                <execution> 
+            <executions>
+                <execution>
                     <id>wsimport-from-jdk</id>
                     <goals>
                         <goal>wsimport</goal>
@@ -121,9 +121,9 @@
                     <wsdlFile>Vet360MailingAddressActions.wsdl</wsdlFile>
                 </wsdlFiles>
                 <!-- Keep generated files -->
-                <keep>true</keep> 
-                <!-- Package name 
-                <packageName>gov.va.oit.oed.vaww</packageName> 
+                <keep>true</keep>
+                <!-- Package name
+                <packageName>gov.va.oit.oed.vaww</packageName>
                  -->
                 <sourceDestDir>target/generated-sources</sourceDestDir>
             </configuration>

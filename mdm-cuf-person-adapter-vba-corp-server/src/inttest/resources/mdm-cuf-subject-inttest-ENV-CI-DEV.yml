@@ -1,0 +1,3 @@
+mdm-cuf-person-adapter-vbacorp-inttest:   
+  baseUrl: http://env-ci-dev.evss.srarad.com
+  userFile: ./src/inttest/resources/ENV-CI-DEV/UserTestData.csv
