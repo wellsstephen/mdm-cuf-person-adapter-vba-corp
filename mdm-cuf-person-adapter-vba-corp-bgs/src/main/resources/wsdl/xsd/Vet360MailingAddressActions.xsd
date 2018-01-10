@@ -2,21 +2,21 @@
 
 <xs:element name="MessageException" nillable="true" type="tns:messageFaultInfoBean"/>
 
-<xs:element name="updateMailingAddress" type="tns:updateMailingAddress"/>
+<xs:element name="updateMailingAddress">
+	<xs:complexType>
+	<xs:sequence>
+	<xs:element name="ptcpntAddrsId" type="xs:long" minOccurs="0"/>
+	</xs:sequence>
+	</xs:complexType>
+</xs:element>
 
-<xs:element name="updateMailingAddressResponse" type="tns:updateMailingAddressResponse"/>
-
-<xs:complexType name="updateMailingAddress">
-<xs:sequence>
-<xs:element name="ptcpntAddrsId" type="xs:long" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="updateMailingAddressResponse">
-<xs:sequence>
-<xs:element name="returnCode" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
+<xs:element name="updateMailingAddressResponse">
+	<xs:complexType>
+	<xs:sequence>
+	<xs:element name="returnCode" type="xs:string" minOccurs="0"/>
+	</xs:sequence>
+	</xs:complexType>
+</xs:element>
 
 <xs:complexType name="messageFaultInfoBean">
 <xs:sequence>
