@@ -1,0 +1,3 @@
+mdm-cuf-person-adapter-vbacorp-inttest:  
+  baseUrl: http://localhost:8080
+  userFile: ./src/inttest/resources/ENV-LOCAL/UserTestData.csv

@@ -1,0 +1,3 @@
+mdm-cuf-person-adapter-vbacorp-inttest:
+    baseUrl: http://int.vet360.va.gov
+    userFile: ./src/inttest/resources/ENV-INT-DEV/UserTestData.csv

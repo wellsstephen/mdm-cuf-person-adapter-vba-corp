@@ -1,0 +1,35 @@
+mdm-cuf-person-adapter-vbacorp-inttest: 
+  baseUrl: OVERRIDE_IN_ENV_CONFIG_FILE
+  personPost: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/
+  personPut: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information//v1/
+  personGet: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information//v1/{vet360Id}
+  personGetStatus: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/status/{txAuditId}
+
+  pathToExcel: ./src/inttest/resources/mdm/cuf/person/testData/TestDataPhone.xlsx
+  errorFile: ./src/inttest/resources/mdm/cuf/person/testData/error_codes.csv
+  userFile: OVERRIDE_IN_ENV_CONFIG_FILE
+
+  personMaintenance: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/maintenance/{oid}/{idWithAaid}
+
+  phonePost: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/telephones
+  phonePut: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/telephones
+  phoneGet: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/telephones/{telephoneId}
+  phoneGetAll: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/telephones
+  phoneGetHistory: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/telephones/history
+  phoneGetStatus: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/telephones/status/{txAuditId}
+
+  emailPost: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/emails
+  emailPut: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/emails
+  emailGetCurrent: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/emails
+  emailGetHistory: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/emails/history
+  emailGetStatus: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/emails/status/{txAuditId}
+  emailGet: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/emails/{emailId}
+
+  addressPost: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/addresses
+  addressPut: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/addresses
+  addressGetCurrent: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/addresses
+  addressGet: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/addresses/{addressId}
+  addressGetStatus: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/{vet360Id}/addresses/status/{txAuditId}
+
+  personChangeLogGetStatus: ${mdm-cuf-person-adapter-vbacorp-inttest.baseUrl}/cuf/person/contact-information/v1/status/changelog/{txAuditId}
+  
